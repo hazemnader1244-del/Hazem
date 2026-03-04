@@ -1096,7 +1096,7 @@ input[type=number] { -moz-appearance:textfield }
 // ============================================================
 // CONFIG
 // ============================================================
-var SHEET_URL   = "https://script.google.com/macros/s/AKfycbwJFIafYhcKW1fthPLe0-wyeN2lc36Gl-1T93S66UO_uWtGaa_uGWKBe5k5bv8IXD_l/exec";
+var SHEET_URL = "https://meti-traker.hazemnader1244.workers.dev/";
 var NK          = "meti_labeler_names";
 var NK_YK       = "meti_yk_history";
 var NK_PC_H     = "meti_pc_history";
@@ -1751,35 +1751,42 @@ function doSubmit(payload, btn) {
     var _sp = (payload.labelerName && payload.labelerName.toLowerCase() === "radwa hassan") && (payload.pcNo && payload.pcNo.toString() === "12");
     toast(_sp ? "🦉✓ Saved successfully🦉" : "✓ Saved successfully!", "ok");
     btn.disabled    = false;
-    btn.textContent = "u2714u00a0 Submit Task";
+    btn.textContent = "\u2714\u00a0 Submit Task";   // ← \u مش u
     resetForm();
   }
 
-  function onError() {
+  function onError(msg) {
     btn.disabled    = false;
-    btn.textContent = "u26a0ufe0f Error u2014 Please Try Again";
+    btn.textContent = "\u26a0\ufe0f Error \u2014 Please Try Again";  // ← \u مش u
     btn.classList.add("error-state");
-    toast("u26a0 Failed to submit u2014 please try again", "err");
+    toast("\u26a0 Failed to submit \u2014 " + (msg || "please try again"), "err");
     setTimeout(function(){
-      btn.textContent = "u2714u00a0 Submit Task";
+      btn.textContent = "\u2714\u00a0 Submit Task";
       btn.classList.remove("error-state");
     }, 6000);
   }
 
   fetch(SHEET_URL, {
     method:  "POST",
-    mode:    "no-cors",
+    mode:    "cors",                              // ← cors مش no-cors
     headers: { "Content-Type": "text/plain" },
     body:    JSON.stringify(payload)
   })
-  .then(function(){
-    onSuccess();
+  .then(function(res) {
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    return res.json();
   })
-  .catch(function(){
-    onError();
+  .then(function(json) {
+    if (json && json.status === "ok") {
+      onSuccess();
+    } else {
+      onError(json && json.message ? json.message : "server error");
+    }
+  })
+  .catch(function(err) {
+    onError(err.message || "network error");
   });
 }
-
 // ============================================================
 // FORM SUBMIT HANDLER
 // ============================================================
