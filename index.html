@@ -1096,7 +1096,7 @@ input[type=number] { -moz-appearance:textfield }
 // ============================================================
 // CONFIG
 // ============================================================
-var SHEET_URL   = "https://script.google.com/macros/s/AKfycbwJFIafYhcKW1fthPLe0-wyeN2lc36Gl-1T93S66UO_uGWKBe5k5bv8IXD_l/exec";
+var SHEET_URL   = "https://script.google.com/macros/s/AKfycbwJFIafYhcKW1fthPLe0-wyeN2lc36Gl-1T93S66UO_uWtGaa_uGWKBe5k5bv8IXD_l/exec";
 var NK          = "meti_labeler_names";
 var NK_YK       = "meti_yk_history";
 var NK_PC_H     = "meti_pc_history";
@@ -1747,49 +1747,38 @@ function doSubmit(payload, btn) {
   btn.textContent = "Submitting...";
   btn.classList.remove("error-state");
 
-  var controller = new AbortController();
-  var timeoutId  = setTimeout(function(){ controller.abort(); }, 35000);
+  function onSuccess() {
+    saveTaskIdToHistory(payload.taskId);
+    incrementCounter();
+    var _sp = (payload.labelerName && payload.labelerName.toLowerCase() === "radwa hassan") && (payload.pcNo && payload.pcNo.toString() === "12");
+    toast(_sp ? "uD83EuDD89uD83EuDD89 Radwa Hassan u2014 PC 12 u2014 Saved successfully uD83EuDD89uD83EuDD89" : "u2713 Saved successfully!", "ok");
+    btn.disabled    = false;
+    btn.textContent = "u2714u00a0 Submit Task";
+    resetForm();
+  }
+
+  function onError() {
+    btn.disabled    = false;
+    btn.textContent = "u26a0ufe0f Error u2014 Please Try Again";
+    btn.classList.add("error-state");
+    toast("u26a0 Failed to submit u2014 please try again", "err");
+    setTimeout(function(){
+      btn.textContent = "u2714u00a0 Submit Task";
+      btn.classList.remove("error-state");
+    }, 6000);
+  }
 
   fetch(SHEET_URL, {
     method:  "POST",
-    mode:    "cors",
+    mode:    "no-cors",
     headers: { "Content-Type": "text/plain" },
-    body:    JSON.stringify(payload),
-    signal:  controller.signal
+    body:    JSON.stringify(payload)
   })
-  .then(function(res){
-    clearTimeout(timeoutId);
-    return res.text().then(function(txt){
-      try { return JSON.parse(txt); }
-      catch(e){ throw new Error("Server error"); }
-    });
+  .then(function(){
+    onSuccess();
   })
-  .then(function(json){
-    if (json && json.status === "ok") {
-      // ✅ Success
-      saveTaskIdToHistory(payload.taskId);
-      incrementCounter();
-      var _sp = (payload.labelerName && payload.labelerName.toLowerCase() === "radwa hassan") && (payload.pcNo && payload.pcNo.toString() === "12");
-      toast(_sp ? "\uD83E\uDD89\uD83E\uDD89 Radwa Hassan \u2014 PC 12 \u2014 Saved successfully \uD83E\uDD89\uD83E\uDD89" : "\u2713 Saved successfully!", "ok");
-      btn.disabled    = false;
-      btn.textContent = "\u2714\u00a0 Submit Task";
-      resetForm();
-    } else {
-      throw new Error(json.message || "Server error");
-    }
-  })
-  .catch(function(err){
-    clearTimeout(timeoutId);
-    // ❌ Error — keep form data, show error state
-    btn.disabled    = false;
-    btn.textContent = "\u26a0\ufe0f Error \u2014 Please Try Again";
-    btn.classList.add("error-state");
-    toast("\u26a0 Failed to submit \u2014 please try again", "err");
-    // Reset button appearance after 6 seconds
-    setTimeout(function(){
-      btn.textContent = "\u2714\u00a0 Submit Task";
-      btn.classList.remove("error-state");
-    }, 6000);
+  .catch(function(){
+    onError();
   });
 }
 
