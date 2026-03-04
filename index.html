@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>METI Tasks Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #1c4587;
+  --primary-dark: #132f6b;
+  --primary-light: #2557a7;
+  --primary-xlight: #eaeffb;
+  --accent: #4a7fd4;
+  --surface: #fff;
+  --bg: #f0f4f7;
+  --border: #c5d3ec;
+  --border-focus: #1c4587;
+  --text: #1a2733;
+  --text-secondary: #4a6375;
+  --text-muted: #7a96a8;
+  --error: #c0392b;
+  --error-bg: #fdf0ee;
+  --success: #1a8a5a;
+  --success-bg: #edf7f3;
+  --input-bg: #f7f9fd;
+  --shadow-sm: 0 1px 3px rgba(28,69,135,.08);
+  --shadow-md: 0 4px 16px rgba(28,69,135,.12);
+  --shadow-lg: 0 8px 32px rgba(28,69,135,.16);
+  --radius: 8px;
+  --radius-lg: 12px;
+}
+*,*::before,*::after { box-sizing:border-box; margin:0; padding:0 }
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(28,69,135,.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(74,127,212,.04) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+.page {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+}
+.topbar {
+  width: 100%;
+  background: var(--primary-dark);
+  padding: 0 40px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.topbar-brand { display:flex; align-items:center; gap:12px }
+.topbar-logo-box {
+  width:32px; height:32px;
+  background: rgba(255,255,255,.15);
+  border-radius: 6px;
+  display: flex; align-items:center; justify-content:center;
+}
+.topbar-logo-box svg { width:18px; height:18px }
+.topbar-company {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .75rem; font-weight: 600;
+  color: rgba(255,255,255,.7);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.topbar-time {
+  font-size: .78rem;
+  color: rgba(255,255,255,.55);
+  font-weight: 500; letter-spacing: .5px;
+}
+header.main-header {
+  width: 100%;
+  background: var(--primary);
+  padding: 28px 48px 32px;
+  display: flex; align-items: flex-end; gap: 24px;
+  box-shadow: 0 2px 12px rgba(28,69,135,.25);
+}
+.header-meti {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 3rem; font-weight: 800;
+  color: #fff; letter-spacing: -1px; line-height: 1;
+}
+.header-divider {
+  width:1px; height:44px;
+  background: rgba(255,255,255,.25);
+  flex-shrink: 0; margin-bottom: 2px;
+}
+.header-info { display:flex; flex-direction:column; gap:4px; margin-bottom:3px }
+.header-full-name {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size:.82rem; font-weight:600;
+  color:rgba(255,255,255,.75);
+  letter-spacing:1.5px; text-transform:uppercase;
+}
+.header-dept { font-size:.75rem; color:rgba(255,255,255,.5); font-weight:400; letter-spacing:.5px }
+.header-badge {
+  margin-left: auto;
+  background: linear-gradient(135deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.07) 100%);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 14px;
+  padding: 12px 22px 10px;
+  text-align: center;
+  margin-bottom: 2px;
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  min-width: 130px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.15);
+  backdrop-filter: blur(4px);
+}
+.header-badge-label {
+  font-size: .58rem; font-weight: 700;
+  color: rgba(255,255,255,.45);
+  letter-spacing: 2.5px; text-transform: uppercase;
+  margin-bottom: 2px;
+}
+.header-badge-count {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 2.4rem; font-weight: 800;
+  color: #fff; line-height: 1;
+  letter-spacing: -2px;
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), color .18s;
+  text-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.header-badge-count.bump {
+  transform: scale(1.25);
+  color: #6ee7b7;
+}
+.header-badge-divider {
+  width: 28px; height: 1px;
+  background: rgba(255,255,255,.18);
+  margin: 6px 0 5px;
+}
+.header-badge-actions {
+  display: flex; gap: 5px;
+}
+.hdr-btn {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 20px;
+  color: rgba(255,255,255,.65);
+  font-size: .58rem; font-weight: 700;
+  padding: 3px 10px; cursor: pointer;
+  letter-spacing: .8px; text-transform: uppercase;
+  transition: all .15s;
+  font-family: 'Inter', sans-serif;
+}
+.hdr-btn:hover { background: rgba(255,255,255,.22); color: #fff; border-color: rgba(255,255,255,.35); }
+.hdr-btn.undo {
+  color: #fcd34d;
+  border-color: rgba(252,211,77,.5);
+  background: rgba(252,211,77,.1);
+  animation: undoPulse 1s ease infinite alternate;
+}
+.hdr-btn.undo:hover { background: rgba(252,211,77,.25); color: #fde68a; }
+@keyframes undoPulse {
+  from { box-shadow: 0 0 0 0 rgba(252,211,77,.3); }
+  to   { box-shadow: 0 0 0 4px rgba(252,211,77,.0); }
+}
+.progress-bar-track { width:100%; height:4px; background:rgba(28,69,135,.12) }
+#floatingCounter {
+  position: fixed;
+  top: -80px;
+  right: 28px;
+  z-index: 9000;
+  background: linear-gradient(135deg, #1c4587 0%, #132f6b 100%);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 50px;
+  padding: 6px 18px 6px 14px;
+  display: flex; flex-direction: row; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(28,69,135,.4), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: top .38s cubic-bezier(.34,1.2,.64,1);
+  cursor: default;
+}
+#floatingCounter.visible { top: 14px; }
+#floatingCounter .fc-label {
+  font-size: .52rem; font-weight: 700;
+  color: rgba(255,255,255,.45);
+  letter-spacing: 2px; text-transform: uppercase;
+  white-space: nowrap;
+}
+#floatingCounter .fc-count {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.6rem; font-weight: 800;
+  color: #fff; line-height: 1; letter-spacing: -1px;
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), color .18s;
+  text-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+#floatingCounter .fc-count.bump { transform: scale(1.3); color: #6ee7b7; }
+.progress-bar-fill { height:100%; width:0%; background:var(--accent); transition:width .4s ease }
+.content {
+  width: 100%;
+  max-width: 1480px;
+  padding: 36px 32px 24px;
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: visible;
+  animation: slideUp .4s ease both;
+}
+@keyframes slideUp {
+  from { opacity:0; transform:translateY(20px) }
+  to { opacity:1; transform:translateY(0) }
+}
+.card-section {
+  border-bottom: 1px solid #edf2f6;
+  padding: 36px 48px;
+}
+.card-section:first-child { border-radius: var(--radius-lg) var(--radius-lg) 0 0 }
+.card-section:last-child { border-bottom:none }
+.section-header { display:flex; align-items:center; gap:10px; margin-bottom:22px }
+.section-icon {
+  width:30px; height:30px;
+  background: var(--primary-xlight);
+  border-radius: 7px;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.section-icon svg { width:15px; height:15px; color:var(--primary) }
+.section-title {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size:.82rem; font-weight:700;
+  letter-spacing:2px; text-transform:uppercase; color:var(--primary);
+}
+.stage-wrap { margin-left:auto; display:flex; align-items:center; gap:10px; flex-shrink:0 }
+.stage-label { font-size:.72rem; font-weight:700; color:var(--text-secondary); letter-spacing:1.5px; text-transform:uppercase; white-space:nowrap }
+.stage-box { position:relative }
+#stageField {
+  width:215px; background:#f2f6f9 !important; cursor:default !important;
+  font-size:.88rem; font-weight:500; padding:9px 34px 9px 14px;
+  border-radius:var(--radius); transition:border-color .2s,color .2s;
+}
+#stageField.filled { font-weight:600 }
+#stageIcon {
+  position:absolute; right:11px; top:50%; transform:translateY(-50%);
+  font-size:.8rem; opacity:.4; pointer-events:none; transition:opacity .2s,color .2s;
+}
+.g2 { display:grid; grid-template-columns:1fr 1fr; gap:22px; margin-bottom:22px }
+.g3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:22px; margin-bottom:22px }
+.full { margin-bottom:22px }
+.field label {
+  display:block;
+  font-size:1.15rem; font-weight:600;
+  color:var(--text-secondary);
+  margin-bottom:8px; letter-spacing:.2px;
+}
+.field label .req { color:var(--error); margin-left:2px }
+.field label .sub {
+  display:block;
+  font-size:.7rem; font-weight:400;
+  color:var(--text-muted); margin-top:2px;
+}
+input, select, textarea {
+  width:100%;
+  background: var(--input-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 12px 16px;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 1.05rem;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+  appearance: none; -webkit-appearance: none;
+}
+input::placeholder, textarea::placeholder { color:var(--text-muted) }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(28,69,135,.1);
+  background: #fff;
+}
+input[readonly] { background:#f2f6f9; color:var(--text-muted); cursor:default }
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance:none }
+input[type=number] { -moz-appearance:textfield }
+.sdw { position:relative }
+.sdb {
+  width:100%;
+  background: var(--input-bg);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  font-size: 1.05rem;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+  display: flex;
+  align-items: stretch;
+  position: relative;
+  min-height: 48px;
+  overflow: hidden;
+}
+.sdb input.sd-input {
+  flex:1; border:none; background:transparent;
+  padding: 12px 14px; font-size:1.05rem; color:var(--text);
+  outline:none; cursor:text;
+  font-family:'Inter',sans-serif; min-width:0;
+}
+.sdb input.sd-input::placeholder { color:var(--text-muted) }
+.sdb .sd-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  min-width: 48px;
+  flex-shrink: 0;
+  background: var(--primary-xlight);
+  border-left: 1.5px solid var(--border);
+  color: var(--primary);
+  transition: background .18s, color .18s, border-color .18s;
+  pointer-events: none;
+  position: static;
+  top: auto; right: auto;
+  transform: none;
+  border-radius: 0 calc(var(--radius) - 1.5px) calc(var(--radius) - 1.5px) 0;
+  font-size: 0;
+}
+.sdb .sd-arrow::after {
+  content: '';
+  display: block;
+  width: 9px;
+  height: 9px;
+  border-right: 2.5px solid currentColor;
+  border-bottom: 2.5px solid currentColor;
+  transform: rotate(45deg) translateY(-30%);
+  transition: transform .2s;
+  color: inherit;
+}
+.sdb.open .sd-arrow::after { transform: rotate(-135deg) translateY(30%); }
+.sdb:hover { border-color: var(--primary); }
+.sdb:hover .sd-arrow { background: #d0dcf5; border-left-color: var(--primary); }
+.sdb.open {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(28,69,135,.1);
+  background: #fff;
+}
+.sdb.open .sd-arrow { background: var(--primary); color: #fff; border-left-color: var(--primary); }
+.sd-display {
+  flex:1; min-width:0; font-size:1.05rem;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+  display:none; cursor:pointer;
+  padding: 12px 14px;
+  align-items: center;
+}
+.sdl {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #fff;
+  border: 1.5px solid var(--border-focus);
+  border-radius: var(--radius);
+  z-index: 9999;
+  list-style: none;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  overflow: hidden;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.sdl.open { display:block }
+.sdl li {
+  padding:11px 14px; cursor:pointer;
+  font-size:.95rem; color:var(--text);
+  border-bottom:1px solid #f0f4f7;
+  transition:background .15s; line-height:1.5;
+}
+.sdl li:last-child { border-bottom:none }
+.sdl li:hover, .sdl li.sd-hover { background:var(--primary-xlight); color:var(--primary-dark) }
+.sdl li.sel { background:var(--primary-xlight); color:var(--primary); font-weight:600 }
+.sdl li.sd-empty { color:var(--text-muted); font-style:italic; cursor:default; font-size:.88rem }
+.sdl li.sd-empty:hover { background:transparent; color:var(--text-muted) }
+.hl {
+  color:#e07b00; font-weight:700;
+  background:rgba(224,123,0,.1); border:1px solid rgba(224,123,0,.3);
+  border-radius:5px; padding:1px 7px; margin:0 1px;
+  display:inline-block; letter-spacing:.2px;
+}
+.acw { position:relative }
+.acl {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0; right: 0;
+  background: #fff;
+  border: 1.5px solid var(--border-focus);
+  border-radius: var(--radius);
+  max-height: 220px; overflow-y:auto;
+  z-index: 9999;
+  box-shadow: var(--shadow-lg);
+  display: none;
+}
+.acl.open { display:block }
+.acl li {
+  padding:10px 14px; cursor:pointer;
+  font-size:1.05rem; color:var(--text);
+  list-style:none;
+  display:flex; align-items:center; justify-content:space-between;
+  border-bottom:1px solid #f0f4f7;
+  transition:background .15s;
+}
+.acl li:last-child { border-bottom:none }
+.acl li:hover, .acl li.ac-hover { background:var(--primary-xlight) }
+.delbtn {
+  font-size:.7rem; color:transparent;
+  padding:2px 8px; border-radius:4px;
+  border:none; background:none; cursor:pointer; transition:color .15s;
+}
+.acl li:hover .delbtn, .acl li.ac-hover .delbtn { color:var(--text-muted) }
+.delbtn:hover { color:var(--error) !important }
+.qtc-hint { font-size:.72rem; color:var(--text-muted); margin-bottom:10px; font-style:italic }
+.qtc-shift-msg {
+  font-size:.82rem; color:var(--primary);
+  padding:12px 14px;
+  background:var(--primary-xlight);
+  border-radius:var(--radius); border:1px solid var(--border);
+  display:none;
+}
+.qtc-grid {
+  display:grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap:8px; max-height:280px; overflow-y:auto; padding:2px;
+}
+.qtc-grid::-webkit-scrollbar { width:5px }
+.qtc-grid::-webkit-scrollbar-track { background:#f0f4f7; border-radius:4px }
+.qtc-grid::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px }
+.qtc-card {
+  background:var(--input-bg);
+  border:1.5px solid var(--border);
+  border-radius:var(--radius);
+  padding:10px 12px; cursor:pointer;
+  transition:all .15s;
+  display:flex; align-items:center; gap:10px;
+  user-select:none;
+}
+.qtc-card:hover { border-color:var(--primary-light); background:var(--primary-xlight) }
+.qtc-card.selected { border-color:var(--success); background:var(--success-bg); box-shadow:0 0 0 3px rgba(26,138,90,.1) }
+.qtc-card .qtc-check {
+  width:18px; height:18px;
+  border-radius:50%; border:2px solid var(--border);
+  flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .15s; font-size:.7rem;
+}
+.qtc-card.selected .qtc-check { border-color:var(--success); background:var(--success); color:#fff }
+.qtc-card .qtc-name { font-size:.83rem; font-weight:600; color:var(--text); line-height:1.3 }
+.qtc-card .qtc-role { font-size:.72rem; color:var(--primary); margin-top:1px; font-weight:500 }
+.qtc-card.selected .qtc-name { color:var(--success) }
+.qtc-selected-display { margin-top:10px; min-height:32px; display:flex; flex-wrap:wrap; gap:6px }
+.qtc-tag {
+  background:var(--success-bg);
+  border:1px solid rgba(26,138,90,.35);
+  color:var(--success); border-radius:20px;
+  padding:4px 12px; font-size:.75rem; font-weight:600;
+  display:flex; align-items:center; gap:6px;
+}
+.qtc-tag button { background:none; border:none; color:var(--success); cursor:pointer; font-size:.8rem; padding:0; line-height:1; opacity:.7 }
+.qtc-tag button:hover { opacity:1 }
+.warn-box {
+  display:none;
+  margin-top:6px;
+  align-items:center;
+  gap:6px;
+  font-size:.75rem;
+  color:#b45309;
+  background:#fffbeb;
+  border:1px solid #fcd34d;
+  border-radius:6px;
+  padding:6px 10px;
+}
+.warn-box .warn-icon { font-size:.9rem; font-weight:700; flex-shrink:0 }
+
+/* pending indicator */
+#pendingBanner {
+  display:none;
+  width:100%;
+  background:#fffbeb;
+  border-bottom:2px solid #fcd34d;
+  padding:10px 32px;
+  font-size:.83rem;
+  font-weight:600;
+  color:#b45309;
+  align-items:center;
+  gap:10px;
+}
+#pendingBanner.show { display:flex }
+#pendingBanner .pb-retry {
+  margin-left:auto;
+  background:#fcd34d;
+  border:none;
+  border-radius:6px;
+  padding:4px 14px;
+  font-size:.78rem;
+  font-weight:700;
+  color:#7c4500;
+  cursor:pointer;
+  transition:background .15s;
+}
+#pendingBanner .pb-retry:hover { background:#f5b800 }
+
+.form-footer {
+  background:#f7f9fd;
+  border-top:1px solid var(--border);
+  padding:20px 32px;
+  border-radius:0 0 var(--radius-lg) var(--radius-lg);
+}
+.subbtn {
+  width:100%; padding:14px;
+  background:var(--success);
+  border:none; border-radius:var(--radius);
+  color:#fff;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.95rem; font-weight:700;
+  letter-spacing:1px; text-transform:uppercase;
+  cursor:pointer;
+  transition:background .2s, transform .1s, box-shadow .2s;
+  box-shadow:0 3px 12px rgba(26,138,90,.3);
+}
+.subbtn:hover { background:#157a4e; box-shadow:0 4px 20px rgba(26,138,90,.4) }
+.subbtn:active { transform:scale(.99) }
+.subbtn:disabled { opacity:.6; cursor:not-allowed }
+.toast {
+  position:fixed; bottom:28px; left:50%;
+  transform:translateX(-50%) translateY(16px);
+  padding:12px 28px; border-radius:var(--radius);
+  font-size:1.05rem; font-weight:600;
+  opacity:0; pointer-events:none;
+  transition:all .3s; z-index:99999;
+  box-shadow:var(--shadow-lg);
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0) }
+.toast.ok { background:var(--success-bg); border:1px solid rgba(26,138,90,.4); color:var(--success) }
+.toast.err { background:var(--error-bg); border:1px solid rgba(192,57,43,.3); color:var(--error) }
+.err-field {
+  border-color: var(--error) !important;
+  box-shadow: 0 0 0 3px rgba(192,57,43,.1) !important;
+  animation: shake .3s ease;
+}
+@keyframes shake {
+  0%,100% { transform:translateX(0) }
+  20%,60% { transform:translateX(-3px) }
+  40%,80% { transform:translateX(3px) }
+}
+.task-id-wrap { position:relative }
+.task-id-wrap input { padding-right:38px }
+#idIcon { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:.8rem; opacity:.4 }
+#linkHint { color:var(--text-muted) }
+.storage-panel {
+  width:100%; max-width:1480px;
+  margin:16px 0 40px;
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  background:var(--surface);
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
+}
+.storage-toggle {
+  width:100%; padding:14px 20px;
+  background:#f7f9fd; border:none; cursor:pointer;
+  display:flex; align-items:center; gap:10px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:.85rem; font-weight:700; color:var(--primary); letter-spacing:.5px;
+  transition:background .15s;
+}
+.storage-toggle:hover { background:var(--primary-xlight) }
+.storage-arrow { margin-left:auto; font-size:.7rem; transition:transform .2s; display:inline-block }
+.storage-arrow.open { transform:rotate(180deg) }
+.storage-body { padding:20px 24px; display:flex; flex-direction:column; gap:20px; border-top:1px solid var(--border) }
+.storage-group { display:flex; flex-direction:column; gap:10px }
+.storage-group-header {
+  display:flex; align-items:center; justify-content:space-between;
+  padding-bottom:8px; border-bottom:1px solid #edf2f6;
+}
+.storage-group-title { font-size:.78rem; font-weight:700; color:var(--text-secondary); letter-spacing:.5px }
+.storage-clear-all {
+  font-size:.72rem; font-weight:600; color:var(--error);
+  background:var(--error-bg); border:1px solid rgba(192,57,43,.2);
+  border-radius:5px; padding:3px 10px; cursor:pointer; transition:all .15s;
+}
+.storage-clear-all:hover { background:rgba(192,57,43,.15) }
+.storage-list { display:flex; flex-wrap:wrap; gap:7px; min-height:32px }
+.storage-item {
+  display:flex; align-items:center; gap:6px;
+  background:var(--input-bg);
+  border:1.5px solid var(--border); border-radius:20px;
+  padding:5px 12px; font-size:.82rem; font-weight:500; color:var(--text);
+  transition:border-color .15s;
+}
+.storage-item:hover { border-color:var(--error) }
+.storage-item-del {
+  background:none; border:none; color:var(--text-muted);
+  cursor:pointer; font-size:.8rem; padding:0; line-height:1; transition:color .15s;
+}
+.storage-item-del:hover { color:var(--error) }
+#dupOverlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15,30,60,.18);
+  backdrop-filter: blur(1px);
+}
+#dupOverlay.show { display: flex; }
+.dup-dialog {
+  background: #fff;
+  border-radius: 24px;
+  padding: 48px 48px 36px;
+  width: 95%;
+  max-width: 620px;
+  box-shadow:
+    0 2px 8px rgba(28,69,135,.08),
+    0 20px 60px rgba(28,69,135,.22),
+    0 48px 96px rgba(0,0,0,.18);
+  text-align: center;
+  animation: popIn .38s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes popIn {
+  from { opacity:0; transform:scale(.88) translateY(16px) }
+  to { opacity:1; transform:scale(1) translateY(0) }
+}
+.dup-icon {
+  width:52px; height:52px;
+  background:#fff8ec; border:2px solid #fcd34d; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  margin:0 auto 16px; font-size:1.4rem;
+}
+.dup-title {
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:1.1rem; font-weight:800; color:#1a2733;
+  margin-bottom:20px; letter-spacing:-.3px;
+}
+.dup-body {
+  display:flex; flex-direction:column;
+  align-items:center; gap:10px; margin-bottom:22px;
+}
+.dup-id-label { font-size:.75rem; color:#7a96a8; font-weight:600; letter-spacing:1px; text-transform:uppercase; }
+.dup-id-badge {
+  display:inline-block;
+  background:var(--primary-xlight); border:1.5px solid var(--border);
+  color:var(--primary); font-weight:800; border-radius:8px;
+  padding:4px 18px; font-size:1.2rem; letter-spacing:1px;
+  font-family:'Plus Jakarta Sans',sans-serif; margin-top:4px;
+}
+.dup-submit-line { font-size:.88rem; color:#1a2733; font-weight:500; line-height:1.6; }
+.dup-time-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  background:#fff8ec; border:1.5px solid #fcd34d;
+  color:#b45309; font-weight:700; border-radius:20px;
+  padding:2px 10px; font-size:.83rem; vertical-align:middle;
+}
+.dup-question { font-size:.88rem; color:#1a2733; font-weight:600; direction:rtl; margin-top:2px; }
+.dup-explain {
+  font-size:.82rem; color:#3a5068; direction:rtl; margin-top:8px;
+  line-height:1.7; text-align:right;
+}
+.dup-divider { height:1px; background:#edf2f6; margin:0 -32px 20px; }
+.dup-btns { display:flex; flex-direction:column; gap:8px; }
+.dup-btn-cancel {
+  width:100%; padding:13px; border-radius:8px;
+  border:1.5px solid #f5c6c6; background:#fdf0ee;
+  color:var(--error); font-weight:700; font-size:.95rem;
+  cursor:pointer; font-family:'Plus Jakarta Sans',sans-serif; transition:all .15s;
+}
+.dup-btn-cancel:hover { background:#fae0dd; border-color:#e0a0a0; }
+.dup-btn-ok {
+  width:fit-content; align-self:center;
+  padding:6px 24px; border-radius:20px; border:none;
+  background:transparent; color:var(--text-muted);
+  font-weight:500; font-size:.78rem;
+  cursor:pointer; font-family:'Inter',sans-serif;
+  transition:all .15s; text-decoration:underline; text-underline-offset:3px;
+}
+.dup-btn-ok:hover { color:var(--error); background:transparent; }
+@media(max-width:640px) {
+  .g2, .g3 { grid-template-columns:1fr }
+  .card-section { padding:22px 18px }
+  .qtc-grid { grid-template-columns:1fr 1fr }
+  .content { padding:24px 16px 16px }
+  .storage-panel { margin:12px 0 32px }
+  .dup-dialog { padding:26px 20px 20px }
+  .dup-divider { margin:0 -20px 18px }
+  .stage-wrap { display:none }
+}
+
+/* ── Instructions button ── */
+.instructions-btn {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: linear-gradient(135deg, rgba(255,255,255,.13) 0%, rgba(255,255,255,.07) 100%);
+  border: 1.5px solid rgba(255,255,255,.28);
+  border-radius: 10px;
+  padding: 12px 22px;
+  color: rgba(255,255,255,.88);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: .82rem;
+  font-weight: 700;
+  letter-spacing: .6px;
+  cursor: pointer;
+  transition: all .2s;
+  white-space: nowrap;
+  box-shadow: 0 2px 12px rgba(0,0,0,.15), inset 0 1px 0 rgba(255,255,255,.12);
+  backdrop-filter: blur(4px);
+}
+.instructions-btn svg {
+  width: 16px; height: 16px;
+  flex-shrink: 0;
+  opacity: .85;
+}
+.instructions-btn:hover:not(:disabled) {
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.5);
+  color: #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+}
+.instructions-btn:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* ── Counter bar (below header) ── */
+.counter-bar {
+  width: 100%;
+  background: var(--primary);
+  border-top: 1px solid rgba(255,255,255,.08);
+  padding: 0 48px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  min-height: 44px;
+}
+.counter-bar-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, rgba(255,255,255,.11) 0%, rgba(255,255,255,.06) 100%);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 12px;
+  padding: 6px 16px 6px 20px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12);
+}
+.counter-bar-label {
+  font-size: .6rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.45);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.counter-bar-count {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -1px;
+  min-width: 28px;
+  text-align: center;
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), color .18s;
+  text-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.counter-bar-count.bump {
+  transform: scale(1.3);
+  color: #6ee7b7;
+}
+.counter-bar-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,.18);
+}
+.counter-bar-btn {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 20px;
+  color: rgba(255,255,255,.65);
+  font-size: .58rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  cursor: pointer;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  transition: all .15s;
+  font-family: 'Inter', sans-serif;
+}
+.counter-bar-btn:hover {
+  background: rgba(255,255,255,.22);
+  color: #fff;
+  border-color: rgba(255,255,255,.35);
+}
+.counter-bar-btn.undo {
+  color: #fcd34d;
+  border-color: rgba(252,211,77,.5);
+  background: rgba(252,211,77,.1);
+  animation: undoPulse 1s ease infinite alternate;
+}
+.counter-bar-btn.undo:hover {
+  background: rgba(252,211,77,.25);
+  color: #fde68a;
+}
+@media(max-width:640px) {
+  .counter-bar { padding: 0 16px; }
+  .instructions-btn span { display: none; }
+}
+
+/* ── Section counter (Tasks Done inside Session Info header) ── */
+.sec-counter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border: 1.5px solid rgba(255,255,255,.15);
+  border-radius: 12px;
+  padding: 7px 16px 7px 18px;
+  box-shadow: 0 2px 12px rgba(28,69,135,.25), inset 0 1px 0 rgba(255,255,255,.12);
+}
+.sec-counter-label {
+  font-size: .6rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.5);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sec-counter-num {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -1px;
+  min-width: 28px;
+  text-align: center;
+  transition: transform .18s cubic-bezier(.34,1.56,.64,1), color .18s;
+  text-shadow: 0 2px 8px rgba(0,0,0,.2);
+}
+.sec-counter-num.bump {
+  transform: scale(1.3);
+  color: #6ee7b7;
+}
+.sec-counter-sep {
+  width: 1px;
+  height: 20px;
+  background: rgba(255,255,255,.2);
+}
+.sec-counter-btn {
+  background: rgba(255,255,255,.1);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 20px;
+  color: rgba(255,255,255,.7);
+  font-size: .6rem;
+  font-weight: 700;
+  padding: 3px 11px;
+  cursor: pointer;
+  letter-spacing: .8px;
+  text-transform: uppercase;
+  transition: all .15s;
+  font-family: 'Inter', sans-serif;
+}
+.sec-counter-btn:hover {
+  background: rgba(255,255,255,.22);
+  border-color: rgba(255,255,255,.4);
+  color: #fff;
+}
+.sec-counter-btn.undo {
+  color: #fcd34d;
+  border-color: rgba(252,211,77,.5);
+  background: rgba(252,211,77,.15);
+  animation: undoPulse 1s ease infinite alternate;
+}
+.sec-counter-btn.undo:hover {
+  background: rgba(252,211,77,.28);
+  color: #fde68a;
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-logo-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="3" width="20" height="14" rx="2"/>
+          <line x1="8" y1="21" x2="16" y2="21"/>
+          <line x1="12" y1="17" x2="12" y2="21"/>
+        </svg>
+      </div>
+      <span class="topbar-company">Micro Engineering Tech Inc.</span>
+    </div>
+    <span class="topbar-time" id="topTime">Loading...</span>
+  </div>
+
+  <!-- Pending data banner -->
+  <div id="pendingBanner">
+    <span>&#9203; يوجد بيانات لم تُرسل بعد — جاري المحاولة...</span>
+    <button type="button" class="pb-retry" id="pbRetryBtn">Retry Now</button>
+  </div>
+
+  <header class="main-header">
+    <div class="header-meti">METI</div>
+    <div class="header-divider"></div>
+    <div class="header-info">
+      <div class="header-full-name">Micro Engineering</div>
+      <div class="header-dept">Labeling Operations · Internal System</div>
+    </div>
+    <!-- Form Filling Instructions button -->
+    <button type="button" class="instructions-btn" id="instructionsBtn" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <line x1="12" y1="8" x2="12" y2="12"/>
+        <line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      Form Filling Instructions
+    </button>
+  </header>
+
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progressBar"></div>
+  </div>
+
+  <!-- Floating sticky counter -->
+  <div id="floatingCounter">
+    <span class="fc-label">Tasks</span>
+    <span class="fc-count" id="floatingCount">0</span>
+  </div>
+
+  <div class="content">
+    <div class="card">
+      <form id="F" autocomplete="off">
+        <!-- SECTION 1: SESSION INFO -->
+        <div class="card-section">
+          <div class="section-header" style="justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div class="section-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                </svg>
+              </div>
+              <span class="section-title">Session Information</span>
+            </div>
+            <!-- Tasks Done counter -->
+            <div class="sec-counter">
+              <span class="sec-counter-label">Tasks Done</span>
+              <span class="sec-counter-num" id="taskCounter">0</span>
+              <div class="sec-counter-sep"></div>
+              <button type="button" class="sec-counter-btn" id="counterResetBtn">Reset</button>
+              <button type="button" class="sec-counter-btn undo" id="counterUndoBtn" style="display:none">&#8629; Undo</button>
+            </div>
+          </div>
+          <div class="full field">
+            <label>Timestamp</label>
+            <input type="text" id="ts" readonly>
+          </div>
+          <div class="g3">
+            <div class="field">
+              <label>Shift <span class="req">*</span></label>
+              <div class="sdw">
+                <div class="sdb" id="shiftBtn" tabindex="0">
+                  <input class="sd-input" id="shiftInput" placeholder="Select Shift..." autocomplete="off" data-lpignore="true">
+                  <span class="sd-arrow"></span>
+                </div>
+                <ul class="sdl" id="shiftList">
+                  <li data-v="Morning">Morning</li>
+                  <li data-v="Night">Night</li>
+                  <li data-v="Over Night">Over Night</li>
+                  <li data-v="Morning 12 H">Morning 12 H</li>
+                  <li data-v="Over Night 12 H">Over Night 12 H</li>
+                  <li data-v="Over Shift (M)">Over Shift (M)</li>
+                  <li data-v="Over Shift (N)">Over Shift (N)</li>
+                  <li data-v="Over Shift (ON)">Over Shift (ON)</li>
+                </ul>
+                <input type="hidden" id="shift">
+              </div>
+            </div>
+            <div class="field">
+              <label>Unit <span class="req">*</span></label>
+              <div class="sdw">
+                <div class="sdb" id="unitBtn" tabindex="0">
+                  <input class="sd-input" id="unitInput" placeholder="Select Unit..." autocomplete="off" data-lpignore="true">
+                  <span class="sd-arrow"></span>
+                </div>
+                <ul class="sdl" id="unitList">
+                  <li data-v="NC Room 102">NC Room 102</li>
+                  <li data-v="NC Room 106">NC Room 106</li>
+                  <li data-v="NC Room 108">NC Room 108</li>
+                  <li data-v="2nd Floor">2nd Floor</li>
+                  <li data-v="4th Floor">4th Floor</li>
+                </ul>
+                <input type="hidden" id="unit">
+              </div>
+            </div>
+            <div class="field">
+              <label>PC No. <span class="req">*</span></label>
+              <div class="acw">
+                <input type="text" id="pcNo" placeholder="e.g. 7, 30, QTC or SV" required autocomplete="off" data-lpignore="true">
+                <ul class="acl" id="pcAcList"></ul>
+              </div>
+            </div>
+          </div>
+          <div class="full field">
+            <label>Labeler Name <span class="req">*</span></label>
+            <div class="acw">
+              <input type="text" id="labName" placeholder="Start typing a name..." required autocomplete="off" data-lpignore="true">
+              <ul class="acl" id="acList"></ul>
+            </div>
+            <div id="labNameWarn" class="warn-box">
+              <span class="warn-icon">&#9888;</span>
+              <span>اسمك باللغه الانجلزيه</span>
+            </div>
+          </div>
+          <div class="g2">
+            <div class="field">
+              <label>QTC Shift <span class="req">*</span></label>
+              <div class="sdw">
+                <div class="sdb" id="qtcShiftBtn" tabindex="0">
+                  <input class="sd-input" id="qtcShiftInput" placeholder="Select QTC Shift..." autocomplete="off" data-lpignore="true">
+                  <span class="sd-arrow"></span>
+                </div>
+                <ul class="sdl" id="qtcShiftList">
+                  <li data-v="Morning">Morning</li>
+                  <li data-v="Night">Night</li>
+                  <li data-v="Over Night">Over Night</li>
+                </ul>
+                <input type="hidden" id="qtcShiftSel">
+              </div>
+            </div>
+            <div class="field">
+              <label>Yubikey <span class="req">*</span></label>
+              <div class="acw">
+                <input type="text" id="yk" placeholder="e.g. 123456 or me123456@meti.ai" required autocomplete="off" data-lpignore="true">
+                <ul class="acl" id="ykAcList"></ul>
+              </div>
+              <div id="ykHint" style="font-size:.72rem;color:var(--text-muted);margin-top:5px;">
+                6-digit code <span style="color:var(--border)">|</span> or email format: <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="4a272f7b78797e7f7c0a272f3e23642b23">[email&#160;protected]</a>
+              </div>
+            </div>
+          </div>
+          <div class="full field">
+            <label>QTC Name <span class="req">*</span></label>
+            <div id="qtcShiftMsg" class="qtc-shift-msg">&#9432; Please select a QTC Shift first to view available names.</div>
+            <div id="qtcPickerWrap" style="display:none">
+              <input type="text" id="qtcSearch" placeholder="&#128269; Search by name..." autocomplete="off" style="margin-bottom:10px;background:#f7f9fd;">
+              <div class="qtc-hint">Click on a name to select — scroll to see all</div>
+              <div class="qtc-grid" id="qtcGrid"></div>
+              <div class="qtc-selected-display" id="qtcSelectedDisplay"></div>
+            </div>
+            <input type="hidden" id="qtcName">
+          </div>
+        </div>
+
+        <!-- SECTION 2: TASK DETAILS -->
+        <div class="card-section">
+          <div class="section-header" style="justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
+              <div class="section-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                </svg>
+              </div>
+              <span class="section-title">Task Details</span>
+            </div>
+            <div class="stage-wrap">
+              <span class="stage-label">Stage</span>
+              <div class="stage-box">
+                <input type="text" id="stageField" readonly placeholder="Auto-filled from link...">
+                <span id="stageIcon">&#8212;</span>
+              </div>
+            </div>
+          </div>
+          <div class="g2">
+            <div class="field">
+              <label>Modality <span class="req">*</span></label>
+              <div class="sdw">
+                <div class="sdb" id="modalityBtn" tabindex="0">
+                  <input class="sd-input" id="modalityInput" placeholder="Select Modality..." autocomplete="off" data-lpignore="true">
+                  <span class="sd-arrow"></span>
+                </div>
+                <ul class="sdl" id="modalityList">
+                  <li data-v="Lane Line"><span class="hl">Lane Line</span></li>
+                  <li data-v="Lidar"><span class="hl">Lidar</span></li>
+                </ul>
+                <input type="hidden" id="modality">
+              </div>
+            </div>
+            <div class="field">
+              <label>Queue Name <span class="req">*</span></label>
+              <div class="sdw">
+                <div class="sdb" id="queueBtn" tabindex="0">
+                  <span class="sd-display" id="queueDisplay"></span>
+                  <input class="sd-input" id="queueInput" placeholder="Select Queue..." autocomplete="off" data-lpignore="true">
+                  <span class="sd-arrow"></span>
+                </div>
+                <ul class="sdl" id="queueList">
+                  <li data-v="sc3_full_scene_highway_mapless_filtered_3d_lanes">sc3_full_scene_highway_mapless_<span class="hl">filtered</span>_3d_lanes</li>
+                  <li data-v="sc3_full_scene_highway_lanes_first_lidar_labeling">sc3_full_scene_highway_lanes_<span class="hl">first_lidar</span>_labeling</li>
+                  <li data-v="sc3_full_scene_highway_lidar_only_labeling">sc3_full_scene_highway_<span class="hl">lidar_only</span>_labeling</li>
+                </ul>
+                <input type="hidden" id="qName">
+              </div>
+            </div>
+          </div>
+          <div class="full field">
+            <label>Task Link <span class="req">*</span>
+              <span class="sub" id="linkHint">Must start with: https://labeling.robot.car/#</span>
+            </label>
+            <input type="text" id="taskLink" placeholder="https://labeling.robot.car/#..." required autocomplete="off">
+          </div>
+          <div class="g2">
+            <div class="field">
+              <label>Task ID <span class="req">*</span></label>
+              <div class="task-id-wrap">
+                <input type="text" id="taskId" placeholder="Auto-filled" required>
+                <span id="idIcon">&#8212;</span>
+              </div>
+              <div id="taskIdNumWarn" class="warn-box" dir="rtl">
+                <span class="warn-icon">&#9888;</span>
+                <span>ارقام بس</span>
+              </div>
+              <div id="taskIdWarn" class="warn-box" dir="rtl">
+                <span class="warn-icon">&#9888;</span>
+                <span>خلي بالك الـ <span dir="ltr">Task ID</span> مختلف عن اللي في الـ <span dir="ltr">Link</span></span>
+              </div>
+            </div>
+            <div class="field">
+              <label>Pass <span class="req">*</span></label>
+              <div class="sdw" style="position:relative">
+                <div class="sdb" id="passBtn" tabindex="0">
+                  <input class="sd-input" id="passInput" placeholder="Auto-filled from link..." autocomplete="off" data-lpignore="true">
+                  <span class="sd-arrow"></span>
+                </div>
+                <ul class="sdl" id="passList">
+                  <li data-v="FP">FP</li>
+                  <li data-v="QA">QA</li>
+                </ul>
+                <input type="hidden" id="pass">
+                <span id="passIcon" style="position:absolute;right:56px;top:50%;transform:translateY(-50%);font-size:.8rem;opacity:.4;pointer-events:none;z-index:10;">&#8212;</span>
+              </div>
+              <div id="passWarn" class="warn-box" dir="rtl">
+                <span class="warn-icon">&#9888;</span>
+                <span id="passWarnText">خلي بالك الـ <span dir="ltr">Pass</span> مختلف عن اللي في الـ <span dir="ltr">Link</span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION 3: TASK ACTION -->
+        <div class="card-section">
+          <div class="section-header">
+            <div class="section-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="9 11 12 14 22 4"/>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+              </svg>
+            </div>
+            <span class="section-title">Task Action</span>
+          </div>
+          <div class="full field">
+            <label>How Many Objects? <span class="req">*</span></label>
+            <input type="number" id="objCount" placeholder="Enter number of objects" min="0" required>
+          </div>
+        </div>
+
+        <!-- FORM FOOTER -->
+        <div class="form-footer">
+          <button type="submit" class="subbtn" id="subBtn">&#10004;&nbsp; Submit Task</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- SAVED DATA PANEL -->
+    <div class="storage-panel">
+      <button type="button" class="storage-toggle" id="storageToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;flex-shrink:0">
+          <ellipse cx="12" cy="5" rx="9" ry="3"/>
+          <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+        </svg>
+        <span>Saved Data</span>
+        <span class="storage-arrow" id="storageArrow">&#9660;</span>
+      </button>
+      <div class="storage-body" id="storageBody" style="display:none">
+        <div class="storage-group">
+          <div class="storage-group-header">
+            <span class="storage-group-title">&#128100; Labeler Names</span>
+            <button type="button" class="storage-clear-all" id="clearNamesBtn">Clear All</button>
+          </div>
+          <div id="storageNames" class="storage-list"></div>
+        </div>
+        <div class="storage-group">
+          <div class="storage-group-header">
+            <span class="storage-group-title">&#128273; Yubikeys</span>
+            <button type="button" class="storage-clear-all" id="clearYKBtn">Clear All</button>
+          </div>
+          <div id="storageYK" class="storage-list"></div>
+        </div>
+        <div class="storage-group">
+          <div class="storage-group-header">
+            <span class="storage-group-title">&#128187; PC No.</span>
+            <button type="button" class="storage-clear-all" id="clearPCBtn">Clear All</button>
+          </div>
+          <div id="storagePC" class="storage-list"></div>
+        </div>
+        <div class="storage-group">
+          <div class="storage-group-header">
+            <span class="storage-group-title">&#9728; Shift</span>
+            <button type="button" class="storage-clear-all" id="clearShiftBtn">Clear All</button>
+          </div>
+          <div id="storageShift" class="storage-list"></div>
+        </div>
+        <div class="storage-group">
+          <div class="storage-group-header">
+            <span class="storage-group-title">&#127970; Unit</span>
+            <button type="button" class="storage-clear-all" id="clearUnitBtn">Clear All</button>
+          </div>
+          <div id="storageUnit" class="storage-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DUPLICATE TASK ID DIALOG -->
+<div id="dupOverlay">
+  <div class="dup-dialog">
+    <div class="dup-icon">⚠️</div>
+    <div class="dup-title">Task ID متكرر</div>
+    <div class="dup-body">
+      <div>
+        <div class="dup-id-label">Task ID</div>
+        <div class="dup-id-badge" id="dupIdBadge">—</div>
+      </div>
+      <div class="dup-submit-line" id="dupSubmitLine" dir="rtl"></div>
+      <div class="dup-explain" dir="rtl">ده معناه إنك بعت نفس الـ Task مرة قبل كده، أو إن الـ Link اللي معاك اتعملله Copy من الـ Link القديم — اتأكد إن الـ Link بتاعك ده بتاع الـ Task الجديد فعلاً</div>
+      <div class="dup-question" dir="rtl">عاوز تبعت نفس الـ <span dir="ltr">Task ID</span> تاني؟</div>
+    </div>
+    <div class="dup-divider"></div>
+    <div class="dup-btns">
+      <button class="dup-btn-cancel" id="dupCancel" type="button">Cancel</button>
+      <button class="dup-btn-ok" id="dupOk" type="button">Ok</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+// ============================================================
+// CONFIG
+// ============================================================
+var SHEET_URL = "https://script.google.com/macros/s/AKfycbxaQdZ8lW5bylL3D4Shh--wL3_tyNPDJzoipFzGk0TTkE6OfGmYnyFbI-8qakAKLxT_kA/exec";
+var NK          = "meti_labeler_names";
+var NK_YK       = "meti_yk_history";
+var NK_PC_H     = "meti_pc_history";
+var NK_SHIFT    = "meti_shift_history";
+var NK_UNIT     = "meti_unit_history";
+var NK_TASK_IDS = "meti_task_ids_history";
+var NK_LAST_LAB = "meti_last_labeler";
+var NK_LAST_PC  = "meti_last_pc";
+var NK_PENDING  = "meti_pending";
+var TASK_WINDOW_MS = 8 * 60 * 60 * 1000;
+
+// ============================================================
+// TASK COUNTER
+// ============================================================
+var NK_COUNTER     = "meti_task_counter";
+var COUNTER_WINDOW = 16 * 60 * 60 * 1000;
+var counterUndoVal = null;
+var undoHideTimer  = null;
+
+function getCounter() {
+  try {
+    var d = JSON.parse(localStorage.getItem(NK_COUNTER));
+    if (!d) return { count: 0, startTs: Date.now() };
+    if (Date.now() - d.startTs >= COUNTER_WINDOW) {
+      var fresh = { count: 0, startTs: Date.now() };
+      localStorage.setItem(NK_COUNTER, JSON.stringify(fresh));
+      return fresh;
+    }
+    return d;
+  } catch(e) { return { count: 0, startTs: Date.now() }; }
+}
+
+function saveCounter(d) {
+  localStorage.setItem(NK_COUNTER, JSON.stringify(d));
+}
+
+function incrementCounter() {
+  var d = getCounter();
+  counterUndoVal = { count: d.count, startTs: d.startTs };
+  d.count++;
+  saveCounter(d);
+  renderCounter();
+  bumpCounter();
+  document.getElementById("counterUndoBtn").style.display = "";
+}
+
+function bumpEl(id) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove("bump");
+  void el.offsetWidth;
+  el.classList.add("bump");
+  setTimeout(function() { el.classList.remove("bump"); }, 300);
+}
+// alias — counter-bar-count uses class not id
+function bumpCounter() {
+  bumpEl("taskCounter");
+  bumpEl("floatingCount");
+}
+
+function resetCounter() {
+  var d = getCounter();
+  counterUndoVal = { count: d.count, startTs: d.startTs };
+  saveCounter({ count: 0, startTs: Date.now() });
+  renderCounter();
+  var undoBtn = document.getElementById("counterUndoBtn");
+  undoBtn.style.display = "";
+  clearTimeout(undoHideTimer);
+  undoHideTimer = setTimeout(function() {
+    undoBtn.style.display = "none";
+    counterUndoVal = null;
+  }, 10000);
+}
+
+function undoCounter() {
+  if (counterUndoVal !== null) {
+    saveCounter(counterUndoVal);
+    counterUndoVal = null;
+    clearTimeout(undoHideTimer);
+    renderCounter();
+    document.getElementById("counterUndoBtn").style.display = "none";
+  }
+}
+
+function renderCounter() {
+  var d = getCounter();
+  var n = d.count;
+  document.getElementById("taskCounter").textContent = n;
+  document.getElementById("floatingCount").textContent = n;
+}
+
+setInterval(function() { getCounter(); renderCounter(); }, 60000);
+
+// ============================================================
+// TASK ID HISTORY
+// ============================================================
+function getRecentTaskIds() {
+  try { return JSON.parse(localStorage.getItem(NK_TASK_IDS)) || []; } catch(e) { return []; }
+}
+function saveTaskIdToHistory(id) {
+  var list = getRecentTaskIds();
+  var now  = Date.now();
+  list = list.filter(function(x) { return (now - x.ts) < TASK_WINDOW_MS; });
+  list.push({ id: String(id), ts: now });
+  localStorage.setItem(NK_TASK_IDS, JSON.stringify(list));
+}
+function checkDuplicateTaskId(id) {
+  var list = getRecentTaskIds();
+  var now  = Date.now();
+  return list.find(function(x) {
+    return x.id === String(id) && (now - x.ts) < TASK_WINDOW_MS;
+  }) || null;
+}
+function formatTimeAgo(ts) {
+  var diff  = Date.now() - ts;
+  var mins  = Math.floor(diff / 60000);
+  var hours = Math.floor(diff / 3600000);
+  var days  = Math.floor(diff / 86400000);
+  if (mins < 1)  return "less than a minute ago";
+  if (mins < 60) return mins + " minute" + (mins > 1 ? "s" : "") + " ago";
+  if (hours < 24) return hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+  return days + " day" + (days > 1 ? "s" : "") + " ago";
+}
+
+// ============================================================
+// QTC DATA
+// ============================================================
+var QTC_DATA = {
+  "Morning": [
+    {name:"Abdelrahman Refaat", role:"QT"}, {name:"Hassan Mohamed", role:"QT"},
+    {name:"Adel Ashraf", role:"QT"}, {name:"Yousef Abass", role:"QT"},
+    {name:"Ahmed Taha", role:"QT"}, {name:"Bassant Sherif", role:"QT"},
+    {name:"Amr Salah (M)", role:""}, {name:"Mazen Ehab (M)", role:""},
+    {name:"Hagar Fawzy (M)", role:""}, {name:"Roqia Wael (M)", role:""},
+    {name:"Eman Gamal (M)", role:""}, {name:"Kirollos Ibrahem (M)", role:""},
+    {name:"Rawan Elmahdy (M)", role:""}, {name:"Shimaa Nasser (M)", role:""},
+    {name:"Aya Mamdouh (M)", role:""}, {name:"Sara Atef (M)", role:""},
+    {name:"Nada Wagih (M)", role:""}, {name:"Nadien Mohey (M)", role:""},
+    {name:"Aya Yousry (M)", role:""}, {name:"Rahma Sayed (M)", role:""},
+    {name:"Hossam Hassan (M)", role:""}, {name:"Mira Samir (M)", role:""},
+    {name:"Asmaa Mohamed (M)", role:""}, {name:"Nesma Mustafa (M)", role:""},
+    {name:"Hagar Atef (M)", role:""}, {name:"Ahmed Adel (M)", role:""},
+    {name:"Asmaa Medhat (M)", role:""}, {name:"Moataz Ahmed (M)", role:""},
+    {name:"Wafaa Fathy (M)", role:""}, {name:"Omnia Mohamed (M)", role:""},
+    {name:"Eslam Ali (M)", role:""}, {name:"Asmaa Khaled (M)", role:""},
+    {name:"Donia El Said (M)", role:""}, {name:"Mayada Adel (M)", role:""},
+    {name:"Reem Samir (M)", role:""}, {name:"Ashiry (M)", role:""},
+    {name:"Abdelmonsef", role:"SV"}, {name:"Yasmeen Nasser", role:"SV"},
+    {name:"Mohamed Khaled", role:"SV"}, {name:"Mohamed Abdel Azim", role:"SV"}
+  ],
+  "Night": [
+    {name:"Hazem Nader", role:"QT"}, {name:"Mohamed Sayed", role:"QT"},
+    {name:"Abdelrahman Adel", role:"QT"}, {name:"Mohamed Kamal", role:"QT"},
+    {name:"Mahmoud Khaled (N)", role:""}, {name:"Ibrahim Mohamed Ibrahim (N)", role:""},
+    {name:"Kerolos Emil Shawky (N)", role:""}, {name:"Hussien Ali (N)", role:""},
+    {name:"Ahmed Nagy (N)", role:""}, {name:"Ali Suliman (N)", role:""},
+    {name:"Mostafa Helal (N)", role:""}, {name:"Osama Ashraf (N)", role:""},
+    {name:"Marwan Mohamed (N)", role:""}, {name:"Tony Emad (N)", role:""},
+    {name:"Hesham Hassan (N)", role:""}, {name:"Mahmoud Adel (N)", role:""},
+    {name:"Abdelrahman Omar (N)", role:""}, {name:"Abdelrahman Tarek Abdo (N)", role:""},
+    {name:"Yousef Mohamed Abdelfatah (N)", role:""}, {name:"Mark Ashraf (N)", role:""},
+    {name:"Ahmed Ashraf (N)", role:""}, {name:"Awad Wagdy (N)", role:""},
+    {name:"Yousef Ramdan (N)", role:""}, {name:"Ibrahim Khaled (N)", role:""},
+    {name:"Abdelrahman Ahmed (N)", role:""},
+    {name:"Mohamed Salem", role:"SV"}, {name:"Yousef Ahmed Eliwa", role:"SV"},
+    {name:"Amr Essam", role:"SV"}, {name:"Shehab Ayman", role:"SV"},
+    {name:"Eslam Salah", role:"SV"}
+  ],
+  "Over Night": [
+    {name:"Omar Sharawy", role:"QT"}, {name:"Mohamed Fahmy", role:"QT"},
+    {name:"Hesham Nasser", role:"QT"}, {name:"Ahmed Selim", role:"QT"},
+    {name:"Islam Yasser", role:"QT"}, {name:"El Noby (ON)", role:""},
+    {name:"Ahmed Nagia (ON)", role:""}, {name:"Abdalla Barbary (ON)", role:""},
+    {name:"Mohamed Zakaria (ON)", role:""}, {name:"Samer Neseim (ON)", role:""},
+    {name:"Mohamed Ibrahim (ON)", role:""}, {name:"Eyad Mohamed (ON)", role:""},
+    {name:"Seif Waled (ON)", role:""}, {name:"Bahi Hussien (ON)", role:""},
+    {name:"Mohamed Nasr (ON)", role:""}, {name:"Shreif Hossam (ON)", role:""},
+    {name:"Mohamed Emam (ON)", role:""}, {name:"Mahmoud Khaled Hussien (ON)", role:""},
+    {name:"Karim Gaber (ON)", role:""}, {name:"Yousef Fathy (ON)", role:""},
+    {name:"Yousef Mohamed Saad (ON)", role:""}, {name:"Ahmed Alsheikh (ON)", role:""},
+    {name:"Mohamed Fathy (ON)", role:""}, {name:"Yousef Ashraf Shaaban (ON)", role:""},
+    {name:"Ahmed Sobhy (ON)", role:""}, {name:"Hossam Taha (ON)", role:""},
+    {name:"Shehab Alaa (ON)", role:""}, {name:"Yousef Saber (ON)", role:""},
+    {name:"Eslam Khaled", role:"SV"}, {name:"Mahmoud Mohamed Mousa", role:"SV"},
+    {name:"ATITO", role:"SV"}
+  ]
+};
+
+// ============================================================
+// HELPERS
+// ============================================================
+var selectedQTC = null;
+var linkTaskId  = "";
+var linkPassVal = "";
+
+function toast(msg, type) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast " + (type || "ok") + " show";
+  clearTimeout(t._timer);
+  t._timer = setTimeout(function() { t.className = "toast"; }, 4200);
+}
+function me(id) { var el = document.getElementById(id); if (el) el.classList.add("err-field"); }
+function ce(id) { var el = document.getElementById(id); if (el) el.classList.remove("err-field"); }
+function getN()      { try { return JSON.parse(localStorage.getItem(NK))       || []; } catch(e) { return []; } }
+function getYK()     { try { return JSON.parse(localStorage.getItem(NK_YK))    || []; } catch(e) { return []; } }
+function getPCH()    { try { return JSON.parse(localStorage.getItem(NK_PC_H))  || []; } catch(e) { return []; } }
+function getShiftH() { try { return JSON.parse(localStorage.getItem(NK_SHIFT)) || []; } catch(e) { return []; } }
+function getUnitH()  { try { return JSON.parse(localStorage.getItem(NK_UNIT))  || []; } catch(e) { return []; } }
+function saveN(n)       { if (!n.trim()) return; var a = getN();      if (a.indexOf(n) === -1) { a.unshift(n); localStorage.setItem(NK,       JSON.stringify(a.slice(0,60))); } }
+function saveYK(v)      { if (!v.trim()) return; var a = getYK();     if (a.indexOf(v) === -1) { a.unshift(v); localStorage.setItem(NK_YK,    JSON.stringify(a.slice(0,20))); } }
+function savePCH(v)     { if (!v.trim()) return; var a = getPCH();    if (a.indexOf(v) === -1) { a.unshift(v); localStorage.setItem(NK_PC_H,  JSON.stringify(a.slice(0,20))); } }
+function saveShiftH(v)  { if (!v.trim()) return; var a = getShiftH(); if (a.indexOf(v) === -1) { a.unshift(v); localStorage.setItem(NK_SHIFT, JSON.stringify(a.slice(0,10))); } }
+function saveUnitH(v)   { if (!v.trim()) return; var a = getUnitH();  if (a.indexOf(v) === -1) { a.unshift(v); localStorage.setItem(NK_UNIT,  JSON.stringify(a.slice(0,10))); } }
+function delN(n)      { localStorage.setItem(NK,       JSON.stringify(getN().filter(function(x){ return x!==n; }))); }
+function delYK(v)     { localStorage.setItem(NK_YK,    JSON.stringify(getYK().filter(function(x){ return x!==v; }))); }
+function delPCH(v)    { localStorage.setItem(NK_PC_H,  JSON.stringify(getPCH().filter(function(x){ return x!==v; }))); }
+function delShiftH(v) { localStorage.setItem(NK_SHIFT, JSON.stringify(getShiftH().filter(function(x){ return x!==v; }))); }
+function delUnitH(v)  { localStorage.setItem(NK_UNIT,  JSON.stringify(getUnitH().filter(function(x){ return x!==v; }))); }
+
+function checkPassWarn() {
+  var currentPass = document.getElementById("pass").value;
+  var warn  = document.getElementById("passWarn");
+  var pIcon = document.getElementById("passIcon");
+  if (linkPassVal && currentPass && currentPass !== linkPassVal) {
+    warn.style.display = "flex";
+    pIcon.textContent = "\u2014"; pIcon.style.color = ""; pIcon.style.opacity = ".4";
+  } else {
+    warn.style.display = "none";
+    if (linkPassVal && currentPass && currentPass === linkPassVal) {
+      pIcon.textContent = "\u2713"; pIcon.style.color = "var(--success)"; pIcon.style.opacity = "1";
+    }
+  }
+}
+
+// ============================================================
+// PENDING BANNER
+// ============================================================
+function updatePendingBanner() {
+  var banner = document.getElementById("pendingBanner");
+  banner.classList.toggle("show", !!localStorage.getItem(NK_PENDING));
+}
+
+// ============================================================
+// STAGE AUTO-DETECT
+// ============================================================
+function detectStage(url) {
+  var u = (url || "").toUpperCase();
+  if (u.indexOf("SELLIVANDAR")    > -1) return "Lidar Stage";
+  if (u.indexOf("SELLMSL")        > -1) return "Image Stage";
+  if (u.indexOf("SELLRELABELING") > -1) return "Relabeling Stage";
+  return "";
+}
+function updateStageField(url) {
+  var el    = document.getElementById("stageField");
+  var icon  = document.getElementById("stageIcon");
+  var stage = detectStage(url);
+  el.classList.remove("filled");
+  if (stage) {
+    el.value = stage; el.classList.add("filled");
+    el.style.borderColor = "#6dbf9a"; el.style.color = "var(--text)";
+    icon.textContent = "\u2713"; icon.style.color = "#6dbf9a"; icon.style.opacity = "1";
+  } else {
+    el.value = ""; el.style.borderColor = ""; el.style.color = "var(--text-muted)";
+    icon.textContent = "\u2014"; icon.style.color = ""; icon.style.opacity = ".4";
+  }
+}
+
+// ============================================================
+// CLOCK
+// ============================================================
+function tick() {
+  var d   = new Date();
+  var el  = document.getElementById("ts");
+  var top = document.getElementById("topTime");
+  if (el)  el.value      = d.toLocaleString("en-US", {timeZone:"Africa/Cairo", month:"2-digit",day:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});
+  if (top) top.textContent = d.toLocaleString("en-US", {timeZone:"Africa/Cairo", weekday:"short",month:"short",day:"numeric",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:true});
+}
+tick();
+setInterval(tick, 1000);
+
+// ============================================================
+// PROGRESS BAR
+// ============================================================
+function updateProgress() {
+  var fields = ["shift","unit","pcNo","labName","yk","modality","taskLink","taskId","pass","qtcName","objCount"];
+  var filled = fields.filter(function(id) {
+    var el = document.getElementById(id);
+    return el && el.value && el.value.trim();
+  }).length;
+  document.getElementById("progressBar").style.width = Math.round(filled / fields.length * 100) + "%";
+}
+document.querySelectorAll("input,select,textarea").forEach(function(el) {
+  el.addEventListener("input",  updateProgress);
+  el.addEventListener("change", updateProgress);
+});
+
+// ============================================================
+// LABELER NAME
+// ============================================================
+document.getElementById("labName").addEventListener("input", function() {
+  var v = this.value;
+  var hasNonEng = v.length > 0 && /[^a-zA-Z\s]/.test(v);
+  this.style.borderColor = hasNonEng ? "var(--error)" : (v.trim() ? "#1a8a5a" : "");
+  this.style.boxShadow   = hasNonEng ? "0 0 0 3px rgba(192,57,43,.1)" : "";
+  document.getElementById("labNameWarn").style.display = hasNonEng ? "flex" : "none";
+});
+
+// ============================================================
+// TASK ID
+// ============================================================
+document.getElementById("taskId").addEventListener("input", function() {
+  var v         = this.value;
+  var hasNonNum = v.length > 0 && /\D/.test(v);
+  this.style.borderColor = hasNonNum ? "var(--error)" : "";
+  this.style.boxShadow   = hasNonNum ? "0 0 0 3px rgba(192,57,43,.1)" : "";
+  document.getElementById("taskIdNumWarn").style.display = hasNonNum ? "flex" : "none";
+  var icon = document.getElementById("idIcon");
+  if (!hasNonNum) {
+    var differs = linkTaskId && v.trim() && v.trim() !== linkTaskId;
+    document.getElementById("taskIdWarn").style.display = differs ? "flex" : "none";
+    if (differs) {
+      icon.textContent = "\u2014"; icon.style.color = ""; icon.style.opacity = ".4";
+    } else if (linkTaskId && v.trim() && v.trim() === linkTaskId) {
+      icon.textContent = "\u2713"; icon.style.color = "var(--success)"; icon.style.opacity = "1";
+    }
+  } else {
+    document.getElementById("taskIdWarn").style.display = "none";
+  }
+});
+
+// ============================================================
+// PC NO. AUTOCOMPLETE
+// ============================================================
+var pcIn  = document.getElementById("pcNo");
+var pcAcL = document.getElementById("pcAcList");
+var pcActive = -1;
+
+function renderPCAC(q) {
+  var hits = q ? getPCH().filter(function(n) { return n.toLowerCase().indexOf(q.toLowerCase()) > -1; }) : getPCH();
+  pcActive = -1;
+  if (!hits.length) { pcAcL.innerHTML = ""; pcAcL.classList.remove("open"); return; }
+  pcAcL.innerHTML = "";
+  hits.forEach(function(val) {
+    var li = document.createElement("li");
+    var sp = document.createElement("span"); sp.textContent = val;
+    var dl = document.createElement("button"); dl.className = "delbtn"; dl.type = "button"; dl.textContent = "\u2715";
+    li.appendChild(sp); li.appendChild(dl);
+    li.addEventListener("mousedown", function(e) {
+      if (e.target === dl) {
+        e.preventDefault(); delPCH(val); renderPCAC(pcIn.value);
+        if (document.getElementById("storageBody").style.display !== "none") renderStorageManager();
+        return;
+      }
+      e.preventDefault(); pcIn.value = val; pcAcL.classList.remove("open"); pcActive = -1; validatePC(val);
+    });
+    pcAcL.appendChild(li);
+  });
+  pcAcL.classList.add("open");
+}
+function validatePC(v) {
+  if (!v) { pcIn.style.borderColor = ""; return; }
+  if (/^qtc$/i.test(v)) { pcIn.value = "QTC"; pcIn.style.borderColor = "#1a8a5a"; return; }
+  if (/^sv$/i.test(v))  { pcIn.value = "SV";  pcIn.style.borderColor = "#1a8a5a"; return; }
+  if (/^\d+$/.test(v)) {
+    var num = parseInt(v, 10);
+    pcIn.style.borderColor = (num >= 1 && num <= 100) ? "#1a8a5a" : "var(--error)";
+  } else {
+    pcIn.style.borderColor = "var(--error)";
+  }
+}
+pcIn.addEventListener("input",  function() { validatePC(this.value.trim()); renderPCAC(this.value); });
+pcIn.addEventListener("focus",  function() { renderPCAC(this.value); });
+pcIn.addEventListener("blur",   function() { setTimeout(function() { pcAcL.classList.remove("open"); pcActive = -1; }, 180); });
+pcIn.addEventListener("keydown", function(e) {
+  var items = pcAcL.querySelectorAll("li");
+  if (!items.length) return;
+  if (e.key === "ArrowDown") { e.preventDefault(); pcActive = Math.min(pcActive+1, items.length-1); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===pcActive);}); }
+  else if (e.key === "ArrowUp")  { e.preventDefault(); pcActive = Math.max(pcActive-1, 0); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===pcActive);}); }
+  else if (e.key === "Enter" && pcActive >= 0) { e.preventDefault(); var v = items[pcActive].querySelector("span").textContent; pcIn.value = v; pcAcL.classList.remove("open"); pcActive = -1; validatePC(v); }
+  else if (e.key === "Escape") { pcAcL.classList.remove("open"); pcActive = -1; }
+});
+
+// ============================================================
+// SEARCHABLE DROPDOWN FACTORY
+// ============================================================
+function makeSearchableDropdown(opts) {
+  var btn     = document.getElementById(opts.btnId);
+  var inp     = document.getElementById(opts.inputId);
+  var list    = document.getElementById(opts.listId);
+  var hidden  = document.getElementById(opts.hiddenId);
+  var dispEl  = opts.displayId ? document.getElementById(opts.displayId) : null;
+  var allItems = Array.from(list.querySelectorAll("li[data-v]"));
+  var activeIdx   = -1;
+  var selectedVal = "";
+
+  function open() {
+    btn.classList.add("open"); list.classList.add("open");
+    if (dispEl) dispEl.style.display = "none";
+    inp.style.display = ""; inp.value = ""; filterItems(""); activeIdx = -1;
+    setTimeout(function() { inp.focus(); }, 0);
+  }
+  function close() {
+    btn.classList.remove("open"); list.classList.remove("open");
+    if (!hidden.value) {
+      inp.value = ""; inp.style.display = "";
+      if (dispEl) { dispEl.innerHTML = ""; dispEl.style.display = "none"; }
+    } else {
+      if (dispEl) {
+        var found = allItems.find(function(li) { return li.dataset.v === hidden.value; });
+        if (found) { dispEl.innerHTML = found.innerHTML; dispEl.style.display = "flex"; }
+        inp.style.display = "none";
+      } else { inp.value = hidden.value; }
+    }
+    activeIdx = -1;
+  }
+  function filterItems(q) {
+    var count = 0;
+    allItems.forEach(function(li) {
+      var text  = (li.dataset.v + " " + li.textContent).toLowerCase();
+      var match = !q || text.indexOf(q.toLowerCase()) > -1;
+      li.style.display = match ? "" : "none";
+      if (match) count++;
+    });
+    var empty = list.querySelector(".sd-empty");
+    if (empty) empty.remove();
+    if (count === 0) {
+      var em = document.createElement("li"); em.className = "sd-empty"; em.textContent = "No results found";
+      list.appendChild(em);
+    }
+    activeIdx = -1; updateHover();
+  }
+  function updateHover() {
+    var visible = allItems.filter(function(li) { return li.style.display !== "none"; });
+    visible.forEach(function(li, i) { li.classList.toggle("sd-hover", i === activeIdx); });
+  }
+  function selectItem(li) {
+    selectedVal = li.dataset.v; hidden.value = selectedVal;
+    allItems.forEach(function(x) { x.classList.remove("sel"); });
+    li.classList.add("sel"); btn.style.borderColor = "#1a8a5a";
+    if (dispEl) {
+      dispEl.innerHTML = li.innerHTML; dispEl.style.display = "flex"; inp.style.display = "none"; inp.value = selectedVal;
+    } else { inp.value = selectedVal; }
+    btn.classList.remove("open"); list.classList.remove("open");
+    activeIdx = -1; updateProgress();
+    if (opts.onSelect) opts.onSelect(selectedVal);
+  }
+  btn.addEventListener("mousedown", function(e) {
+    if (e.target === inp) return;
+    e.preventDefault();
+    list.classList.contains("open") ? close() : open();
+  });
+  if (dispEl) {
+    dispEl.addEventListener("mousedown", function(e) { e.preventDefault(); open(); });
+    dispEl.style.cursor = "pointer";
+  }
+  inp.addEventListener("focus", function() { if (!list.classList.contains("open")) open(); });
+  inp.addEventListener("input", function() {
+    filterItems(this.value); hidden.value = ""; btn.style.borderColor = ""; selectedVal = "";
+    if (dispEl) { dispEl.innerHTML = ""; dispEl.style.display = "none"; }
+  });
+  inp.addEventListener("blur",   function() { setTimeout(close, 160); });
+  inp.addEventListener("keydown", function(e) {
+    var visible = allItems.filter(function(li) { return li.style.display !== "none"; });
+    if (e.key === "ArrowDown") { e.preventDefault(); activeIdx = Math.min(activeIdx+1, visible.length-1); updateHover(); if(visible[activeIdx]) visible[activeIdx].scrollIntoView({block:"nearest"}); }
+    else if (e.key === "ArrowUp")  { e.preventDefault(); activeIdx = Math.max(activeIdx-1, 0); updateHover(); if(visible[activeIdx]) visible[activeIdx].scrollIntoView({block:"nearest"}); }
+    else if (e.key === "Enter") { e.preventDefault(); if(activeIdx>=0 && visible[activeIdx]) selectItem(visible[activeIdx]); }
+    else if (e.key === "Escape") { close(); }
+  });
+  allItems.forEach(function(li) {
+    li.addEventListener("mousedown", function(e) { e.preventDefault(); selectItem(li); });
+  });
+  return {
+    reset: function() {
+      hidden.value = ""; inp.value = ""; inp.style.display = ""; selectedVal = ""; btn.style.borderColor = "";
+      allItems.forEach(function(x) { x.classList.remove("sel"); });
+      if (dispEl) { dispEl.innerHTML = ""; dispEl.style.display = "none"; }
+      filterItems("");
+    },
+    setValue: function(val) {
+      var li = allItems.find(function(x) { return x.dataset.v === val; });
+      if (li) selectItem(li);
+    },
+    getValue: function() { return hidden.value; }
+  };
+}
+
+var shiftDD    = makeSearchableDropdown({btnId:"shiftBtn",    inputId:"shiftInput",    listId:"shiftList",    hiddenId:"shift",       onSelect: function(v){ saveShiftH(v); }});
+var unitDD     = makeSearchableDropdown({btnId:"unitBtn",     inputId:"unitInput",     listId:"unitList",     hiddenId:"unit",        onSelect: function(v){ saveUnitH(v);  }});
+var modalityDD = makeSearchableDropdown({btnId:"modalityBtn", inputId:"modalityInput", listId:"modalityList", hiddenId:"modality"});
+var queueDD    = makeSearchableDropdown({btnId:"queueBtn",    inputId:"queueInput",    listId:"queueList",    hiddenId:"qName",       displayId:"queueDisplay"});
+var passDD     = makeSearchableDropdown({btnId:"passBtn",     inputId:"passInput",     listId:"passList",     hiddenId:"pass",        onSelect: function(){ checkPassWarn(); }});
+var qtcShiftDD = makeSearchableDropdown({btnId:"qtcShiftBtn", inputId:"qtcShiftInput", listId:"qtcShiftList", hiddenId:"qtcShiftSel", onSelect: function(val){ buildQTCGrid(val); var s = document.getElementById("qtcSearch"); if(s) s.value=""; }});
+
+document.addEventListener("click", function(e) {
+  ["shiftBtn","unitBtn","qtcShiftBtn","modalityBtn","queueBtn","passBtn"].forEach(function(id) {
+    var b = document.getElementById(id);
+    var l = document.getElementById(id.replace("Btn","List"));
+    if (b && !b.contains(e.target)) { b.classList.remove("open"); if(l) l.classList.remove("open"); }
+  });
+});
+
+// ============================================================
+// AUTOCOMPLETE — Labeler Name
+// ============================================================
+var labIn    = document.getElementById("labName");
+var acL      = document.getElementById("acList");
+var acActive = -1;
+
+function renderAC(q) {
+  var hits = q ? getN().filter(function(n) { return n.toLowerCase().indexOf(q.toLowerCase()) > -1; }) : getN();
+  acActive = -1;
+  if (!hits.length) { acL.innerHTML = ""; acL.classList.remove("open"); return; }
+  acL.innerHTML = "";
+  hits.forEach(function(name) {
+    var li = document.createElement("li");
+    var sp = document.createElement("span"); sp.textContent = name;
+    var dl = document.createElement("button"); dl.className = "delbtn"; dl.type = "button"; dl.textContent = "\u2715";
+    li.appendChild(sp); li.appendChild(dl);
+    li.addEventListener("mousedown", function(e) {
+      if (e.target === dl) { e.preventDefault(); delN(name); renderAC(labIn.value); if(document.getElementById("storageBody").style.display !== "none") renderStorageManager(); return; }
+      e.preventDefault(); labIn.value = name; acL.classList.remove("open"); acActive = -1;
+    });
+    acL.appendChild(li);
+  });
+  acL.classList.add("open");
+}
+labIn.addEventListener("input",  function() { renderAC(this.value); });
+labIn.addEventListener("focus",  function() { renderAC(this.value); });
+labIn.addEventListener("blur",   function() { setTimeout(function() { acL.classList.remove("open"); acActive = -1; }, 180); });
+labIn.addEventListener("keydown", function(e) {
+  var items = acL.querySelectorAll("li");
+  if (!items.length) return;
+  if (e.key === "ArrowDown") { e.preventDefault(); acActive = Math.min(acActive+1, items.length-1); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===acActive);}); }
+  else if (e.key === "ArrowUp")  { e.preventDefault(); acActive = Math.max(acActive-1, 0); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===acActive);}); }
+  else if (e.key === "Enter" && acActive >= 0) { e.preventDefault(); labIn.value = items[acActive].querySelector("span").textContent; acL.classList.remove("open"); acActive = -1; }
+  else if (e.key === "Escape") { acL.classList.remove("open"); acActive = -1; }
+});
+
+// ============================================================
+// YUBIKEY AUTOCOMPLETE + VALIDATION
+// ============================================================
+var ykIn     = document.getElementById("yk");
+var ykAcL    = document.getElementById("ykAcList");
+var ykActive = -1;
+
+function validateYK(v) {
+  var hint = document.getElementById("ykHint");
+  if (!v) { ykIn.style.borderColor = ""; hint.style.color = "var(--text-muted)"; hint.removeAttribute("dir"); hint.textContent = "6-digit code | or email format: me123456@meti.ai"; return; }
+  var is6 = /^\d{6}$/.test(v);
+  var isE = /^[a-zA-Z]{2}\d+@meti\.ai$/i.test(v);
+  if (is6 || isE) {
+    ykIn.style.borderColor = "#1a8a5a"; hint.style.color = "var(--success)"; hint.removeAttribute("dir");
+    hint.textContent = is6 ? "\u2713 Valid 6-digit code" : "\u2713 Valid email"; ce("yk");
+  } else {
+    ykIn.style.borderColor = "var(--error)"; hint.style.color = "var(--error)"; hint.setAttribute("dir","rtl");
+    hint.textContent = "\u0644\u0627\u0632\u0645 \u064a\u0643\u0648\u0646 6 \u0627\u0631\u0642\u0627\u0645 \u0627\u0648 \u0627\u0644\u0634\u0643\u0644 \u062f\u0647 me123456@meti.ai";
+  }
+}
+function renderYKAC(q) {
+  var hits = q ? getYK().filter(function(n) { return n.toLowerCase().indexOf(q.toLowerCase()) > -1; }) : getYK();
+  ykActive = -1;
+  if (!hits.length) { ykAcL.innerHTML = ""; ykAcL.classList.remove("open"); return; }
+  ykAcL.innerHTML = "";
+  hits.forEach(function(val) {
+    var li = document.createElement("li");
+    var sp = document.createElement("span"); sp.textContent = val;
+    var dl = document.createElement("button"); dl.className = "delbtn"; dl.type = "button"; dl.textContent = "\u2715";
+    li.appendChild(sp); li.appendChild(dl);
+    li.addEventListener("mousedown", function(e) {
+      if (e.target === dl) { e.preventDefault(); delYK(val); renderYKAC(ykIn.value); if(document.getElementById("storageBody").style.display !== "none") renderStorageManager(); return; }
+      e.preventDefault(); ykIn.value = val; ykAcL.classList.remove("open"); ykActive = -1; validateYK(val);
+    });
+    ykAcL.appendChild(li);
+  });
+  ykAcL.classList.add("open");
+}
+ykIn.addEventListener("input",  function() { validateYK(this.value.trim()); renderYKAC(this.value); });
+ykIn.addEventListener("focus",  function() { renderYKAC(this.value); });
+ykIn.addEventListener("blur",   function() { setTimeout(function() { ykAcL.classList.remove("open"); ykActive = -1; }, 180); });
+ykIn.addEventListener("keydown", function(e) {
+  var items = ykAcL.querySelectorAll("li");
+  if (!items.length) return;
+  if (e.key === "ArrowDown") { e.preventDefault(); ykActive = Math.min(ykActive+1, items.length-1); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===ykActive);}); }
+  else if (e.key === "ArrowUp")  { e.preventDefault(); ykActive = Math.max(ykActive-1, 0); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===ykActive);}); }
+  else if (e.key === "Enter" && ykActive >= 0) { e.preventDefault(); var v = items[ykActive].querySelector("span").textContent; ykIn.value = v; ykAcL.classList.remove("open"); ykActive = -1; validateYK(v); }
+  else if (e.key === "Escape") { ykAcL.classList.remove("open"); ykActive = -1; }
+});
+
+// ============================================================
+// QTC GRID BUILDER
+// ============================================================
+function buildQTCGrid(shift) {
+  var grid = document.getElementById("qtcGrid");
+  var disp = document.getElementById("qtcSelectedDisplay");
+  var wrap = document.getElementById("qtcPickerWrap");
+  var msg  = document.getElementById("qtcShiftMsg");
+  var hid  = document.getElementById("qtcName");
+  selectedQTC = null; hid.value = ""; disp.innerHTML = ""; grid.innerHTML = "";
+  var list = QTC_DATA[shift];
+  if (!list) { wrap.style.display = "none"; msg.style.display = "block"; return; }
+  msg.style.display = "none"; wrap.style.display = "block";
+  list.forEach(function(p) {
+    var card = document.createElement("div"); card.className = "qtc-card";
+    card.innerHTML = '<div class="qtc-check"></div><div><div class="qtc-name">' + p.name + '</div>' + (p.role ? '<div class="qtc-role">' + p.role + '</div>' : '') + '</div>';
+    card.addEventListener("click", function() {
+      grid.querySelectorAll(".qtc-card.selected").forEach(function(c) { c.classList.remove("selected"); c.querySelector(".qtc-check").textContent = ""; });
+      card.classList.add("selected"); card.querySelector(".qtc-check").textContent = "\u2713";
+      selectedQTC = p.name; hid.value = selectedQTC;
+      disp.innerHTML = "";
+      var tag = document.createElement("div"); tag.className = "qtc-tag";
+      tag.innerHTML = selectedQTC + '<button type="button" title="Clear">\u2715</button>';
+      tag.querySelector("button").addEventListener("click", function() {
+        selectedQTC = null; hid.value = ""; disp.innerHTML = "";
+        card.classList.remove("selected"); card.querySelector(".qtc-check").textContent = "";
+      });
+      disp.appendChild(tag);
+    });
+    grid.appendChild(card);
+  });
+}
+document.getElementById("qtcShiftMsg").style.display = "block";
+document.getElementById("qtcSearch").addEventListener("input", function() {
+  var q = this.value.toLowerCase().trim();
+  document.querySelectorAll("#qtcGrid .qtc-card").forEach(function(card) {
+    var name = card.querySelector(".qtc-name").textContent.toLowerCase();
+    card.style.display = (q === "" || name.indexOf(q) > -1) ? "" : "none";
+  });
+});
+
+// ============================================================
+// TASK LINK — Auto-fill ID, Pass, Stage
+// ============================================================
+document.getElementById("taskLink").addEventListener("input", function() {
+  var url    = this.value.trim();
+  var PREFIX = "https://labeling.robot.car/#";
+  var hint   = document.getElementById("linkHint");
+  var idEl   = document.getElementById("taskId");
+  var icon   = document.getElementById("idIcon");
+
+  if (url.length > 0 && !url.startsWith(PREFIX)) {
+    this.style.borderColor = "var(--error)"; hint.style.color = "var(--error)";
+  } else {
+    this.style.borderColor = url.length > 0 ? "#1a8a5a" : ""; hint.style.color = "";
+  }
+
+  updateStageField(url);
+
+  var idM = url.match(/\/id\/(\d+)/);
+  if (idM) {
+    linkTaskId = idM[1]; idEl.value = idM[1]; idEl.style.borderColor = "#1a8a5a";
+    icon.textContent = "\u2713"; icon.style.color = "var(--success)"; icon.style.opacity = "1";
+    document.getElementById("taskIdWarn").style.display = "none";
+  } else {
+    linkTaskId = ""; idEl.value = ""; idEl.style.borderColor = "";
+    icon.textContent = "\u2014"; icon.style.color = ""; icon.style.opacity = ".4";
+    document.getElementById("taskIdWarn").style.display = "none";
+  }
+
+  var dM = url.match(/\/do\/([^\/]+)\//);
+  if (dM) {
+    var detectedPass = dM[1].toUpperCase().endsWith("QA") ? "QA" : "FP";
+    linkPassVal = detectedPass; passDD.setValue(detectedPass);
+    var pIcon = document.getElementById("passIcon");
+    pIcon.textContent = "\u2713"; pIcon.style.color = "var(--success)"; pIcon.style.opacity = "1";
+    document.getElementById("passWarn").style.display = "none";
+  } else {
+    linkPassVal = ""; passDD.reset();
+    document.getElementById("passWarn").style.display = "none";
+    var pIcon2 = document.getElementById("passIcon");
+    pIcon2.textContent = "\u2014"; pIcon2.style.color = ""; pIcon2.style.opacity = ".4";
+  }
+
+  updateProgress();
+});
+
+// ============================================================
+// SUBMIT — Zero Data Loss
+// ============================================================
+function sendToSheet(payload, onSuccess, onFail) {
+  var controller = new AbortController();
+  var timeoutId  = setTimeout(function() { controller.abort(); }, 35000);
+
+  fetch(SHEET_URL, {
+    method:  "POST",
+    mode:    "cors",
+    headers: { "Content-Type": "text/plain" },
+    body:    JSON.stringify(payload),
+    signal:  controller.signal
+  })
+  .then(function(res) {
+    clearTimeout(timeoutId);
+    // لو الـ response مش JSON هيفشل — نعالجه صح
+    return res.text().then(function(txt) {
+      try { return JSON.parse(txt); }
+      catch(e) { throw new Error("Non-JSON response: " + txt.substring(0,100)); }
+    });
+  })
+  .then(function(json) {
+    if (json && json.status === "ok") { onSuccess(json); }
+    else { onFail(new Error(json.message || "Sheet error")); }
+  })
+  .catch(function(err) {
+    clearTimeout(timeoutId);
+    onFail(err);
+  });
+}
+
+function doSubmit(payload, btn) {
+  // ✅ 1. احفظ فوراً في localStorage قبل أي حاجة
+  localStorage.setItem(NK_PENDING, JSON.stringify(payload));
+  updatePendingBanner();
+
+  btn.disabled = true;
+  btn.textContent = "Submitting...";
+
+  sendToSheet(
+    payload,
+    // ✅ نجح
+    function(json) {
+      localStorage.removeItem(NK_PENDING);
+      updatePendingBanner();
+      btn.disabled = false;
+      btn.textContent = "\u2714\u00a0 Submit Task";
+      saveTaskIdToHistory(payload.taskId);
+      incrementCounter();
+      toast("\u2713 Saved to sheet successfully!", "ok");
+      resetForm();
+    },
+    // ❌ فشل — البيانات محفوظة في localStorage
+    function(err) {
+      btn.disabled = false;
+      btn.textContent = "\u2714\u00a0 Submit Task";
+      var msg = err && err.name === "AbortError"
+        ? "\u26a0 Timeout (35s) \u2014 data saved locally, will retry automatically"
+        : "\u26a0 Failed \u2014 data saved locally, will retry when connection is back";
+      toast(msg, "err");
+    }
+  );
+}
+
+// ✅ 2. Retry تلقائي
+function retryPending() {
+  var raw = localStorage.getItem(NK_PENDING);
+  if (!raw) return;
+  var payload;
+  try { payload = JSON.parse(raw); }
+  catch(e) { localStorage.removeItem(NK_PENDING); updatePendingBanner(); return; }
+
+  toast("\u23f3 Retrying unsent data...", "ok");
+
+  sendToSheet(
+    payload,
+    function() {
+      localStorage.removeItem(NK_PENDING);
+      updatePendingBanner();
+      saveTaskIdToHistory(payload.taskId);
+      incrementCounter();
+      toast("\u2713 Unsent data saved successfully!", "ok");
+    },
+    function() {
+      // صامت — هيحاول تاني لما الإنترنت يرجع
+    }
+  );
+}
+
+// ✅ 3. sendBeacon — لو التاب اتقفل وفيه pending
+window.addEventListener("beforeunload", function() {
+  var pending = localStorage.getItem(NK_PENDING);
+  if (pending) {
+    try { navigator.sendBeacon(SHEET_URL, pending); } catch(e) {}
+  }
+});
+
+// ✅ 4. Retry عند فتح الصفحة والإنترنت يرجع
+window.addEventListener("load",   function() { retryPending(); });
+window.addEventListener("online", function() { retryPending(); });
+
+// Retry عند الضغط على زرار الـ banner
+document.getElementById("pbRetryBtn").addEventListener("click", function() { retryPending(); });
+
+// ============================================================
+// FORM SUBMIT HANDLER
+// ============================================================
+document.getElementById("F").addEventListener("submit", function(e) {
+  e.preventDefault();
+  var err = false;
+
+  function chkDD(hidId, btnId) {
+    if (!document.getElementById(hidId).value) {
+      document.getElementById(btnId).style.borderColor = "var(--error)";
+      document.getElementById(btnId).style.boxShadow  = "0 0 0 3px rgba(192,57,43,.1)";
+      err = true;
+    } else {
+      document.getElementById(btnId).style.borderColor = "";
+      document.getElementById(btnId).style.boxShadow  = "";
+    }
+  }
+
+  var lab = document.getElementById("labName").value.trim();
+  var lnk = document.getElementById("taskLink").value.trim();
+  var yk  = document.getElementById("yk").value.trim();
+  var obj = document.getElementById("objCount").value;
+
+  chkDD("shift",  "shiftBtn");
+  chkDD("unit",   "unitBtn");
+
+  // PC validation
+  var pcVal = document.getElementById("pcNo").value.trim();
+  if (!pcVal) { me("pcNo"); err = true; }
+  else if (/^qtc$/i.test(pcVal)) { document.getElementById("pcNo").value = "QTC"; ce("pcNo"); }
+  else if (/^sv$/i.test(pcVal))  { document.getElementById("pcNo").value = "SV";  ce("pcNo"); }
+  else if (/^\d+$/.test(pcVal)) {
+    var pcNum = parseInt(pcVal, 10);
+    if (pcNum < 1 || pcNum > 100) { me("pcNo"); err = true; toast("PC No. must be between 1 and 100", "err"); return; }
+    else { ce("pcNo"); }
+  } else { me("pcNo"); err = true; toast("PC No.: Enter a number (1-100), QTC or SV", "err"); return; }
+
+  // Labeler Name
+  if (!lab) { me("labName"); err = true; }
+  else if (!/^[a-zA-Z\s]+$/.test(lab)) { me("labName"); err = true; toast("Labeler Name: English letters only", "err"); return; }
+  else { ce("labName"); }
+
+  chkDD("qtcShiftSel", "qtcShiftBtn");
+
+  // QTC Name
+  if (!document.getElementById("qtcName").value) {
+    var w = document.getElementById("qtcPickerWrap");
+    w.style.border = "1.5px solid var(--error)"; w.style.borderRadius = "8px"; w.style.padding = "8px";
+    err = true;
+  } else {
+    var w2 = document.getElementById("qtcPickerWrap");
+    w2.style.border = ""; w2.style.padding = "";
+  }
+
+  // Yubikey
+  if (!yk) { me("yk"); err = true; }
+  else {
+    var is6 = /^\d{6}$/.test(yk);
+    var isE = /^[a-zA-Z]{2}\d+@meti\.ai$/i.test(yk);
+    if (!is6 && !isE) { me("yk"); err = true; toast("Yubikey: لازم يكون 6 ارقام او me123456@meti.ai", "err"); return; }
+    else { ce("yk"); }
+  }
+
+  chkDD("modality", "modalityBtn");
+  chkDD("qName",    "queueBtn");
+
+  if (!lnk.startsWith("https://labeling.robot.car/#")) { me("taskLink"); err = true; } else { ce("taskLink"); }
+
+  var taskIdVal = document.getElementById("taskId").value.trim();
+  if (!taskIdVal) { me("taskId"); err = true; } else { ce("taskId"); }
+
+  chkDD("pass", "passBtn");
+
+  if (obj === "") { me("objCount"); err = true; toast("Please enter number of objects", "err"); return; }
+  if (err) { toast("Please fill all required fields", "err"); return; }
+
+  // Save to history
+  saveN(lab);
+  saveYK(yk);
+  savePCH(document.getElementById("pcNo").value);
+  saveShiftH(document.getElementById("shift").value);
+  saveUnitH(document.getElementById("unit").value);
+  localStorage.setItem(NK_LAST_LAB, lab);
+  localStorage.setItem(NK_LAST_PC,  document.getElementById("pcNo").value);
+
+  var payload = {
+    timestamp:   document.getElementById("ts").value,
+    shift:       document.getElementById("shift").value,
+    unit:        document.getElementById("unit").value,
+    qtcName:     document.getElementById("qtcName").value,
+    yubikeyEmail: yk,
+    labelerName: lab,
+    pcNo:        document.getElementById("pcNo").value,
+    modality:    document.getElementById("modality").value,
+    queueName:   document.getElementById("qName").value,
+    taskLink:    lnk,
+    taskId:      taskIdVal,
+    pass:        document.getElementById("pass").value,
+    stage:       document.getElementById("stageField").value,
+    action:      "Submit",
+    objectCount: obj,
+    reason:      "",
+    otherNotes:  "",
+    issuedFrames:""
+  };
+
+  var btn = document.getElementById("subBtn");
+  btn.disabled = true;
+
+  // Duplicate check
+  var dupEntry = checkDuplicateTaskId(payload.taskId);
+  if (dupEntry) {
+    var timeStr = formatTimeAgo(dupEntry.ts);
+    document.getElementById("dupIdBadge").textContent   = payload.taskId;
+    document.getElementById("dupSubmitLine").innerHTML  =
+      'انت بعت الـ <span dir="ltr">Task ID</span> ده مره بالفعل من ' +
+      '<span class="dup-time-badge">&#9201; ' + timeStr + '</span>';
+    var overlay = document.getElementById("dupOverlay");
+    overlay.classList.add("show");
+    document.getElementById("dupCancel").onclick = function() {
+      overlay.classList.remove("show");
+      btn.disabled = false; btn.textContent = "\u2714\u00a0 Submit Task";
+    };
+    document.getElementById("dupOk").onclick = function() {
+      overlay.classList.remove("show");
+      doSubmit(payload, btn);
+    };
+    return;
+  }
+
+  doSubmit(payload, btn);
+});
+
+// ============================================================
+// RESET FORM
+// ============================================================
+function resetForm() {
+  document.getElementById("F").reset();
+  tick();
+  selectedQTC = null;
+  linkPassVal = "";
+  document.getElementById("qtcName").value = "";
+  document.getElementById("qtcGrid").innerHTML = "";
+  document.getElementById("qtcSelectedDisplay").innerHTML = "";
+  document.getElementById("qtcPickerWrap").style.display  = "none";
+  document.getElementById("qtcPickerWrap").style.border   = "";
+  document.getElementById("qtcPickerWrap").style.padding  = "";
+  document.getElementById("qtcShiftMsg").style.display    = "block";
+  linkTaskId = "";
+  document.getElementById("taskId").value         = "";
+  document.getElementById("taskId").style.borderColor   = "";
+  document.getElementById("taskIdWarn").style.display    = "none";
+  document.getElementById("taskIdNumWarn").style.display = "none";
+  document.getElementById("labNameWarn").style.display   = "none";
+  document.getElementById("passWarn").style.display      = "none";
+  var pIconR = document.getElementById("passIcon");
+  if (pIconR) { pIconR.textContent = "\u2014"; pIconR.style.color = ""; pIconR.style.opacity = ".4"; }
+  document.getElementById("idIcon").textContent      = "\u2014";
+  document.getElementById("idIcon").style.color      = "";
+  document.getElementById("linkHint").style.color    = "";
+  document.getElementById("taskLink").style.borderColor = "";
+  updateStageField("");
+
+  var prevShift = document.getElementById("shift").value;
+  var prevUnit  = document.getElementById("unit").value;
+  shiftDD.reset(); unitDD.reset(); qtcShiftDD.reset();
+  modalityDD.reset(); queueDD.reset(); passDD.reset();
+  if (prevShift) shiftDD.setValue(prevShift);
+  if (prevUnit)  unitDD.setValue(prevUnit);
+
+  // Restore last labeler & PC
+  var lastLab = localStorage.getItem(NK_LAST_LAB);
+  var lastPC  = localStorage.getItem(NK_LAST_PC);
+  if (lastLab) document.getElementById("labName").value = lastLab;
+  if (lastPC)  { document.getElementById("pcNo").value = lastPC; validatePC(lastPC); }
+
+  ["labName","yk","pcNo","taskLink","taskId","objCount"].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) { el.classList.remove("err-field"); el.style.borderColor = ""; el.style.boxShadow = ""; }
+  });
+
+  var ykHint = document.getElementById("ykHint");
+  if (ykHint) { ykHint.style.color = "var(--text-muted)"; ykHint.textContent = "6-digit code | or email format: me123456@meti.ai"; }
+  document.getElementById("yk").style.borderColor = "";
+  ykAcL.classList.remove("open");
+  pcAcL.classList.remove("open");
+
+  var btn = document.getElementById("subBtn");
+  btn.textContent = "\u2714\u00a0 Submit Task";
+  btn.style.background = "var(--success)";
+  document.getElementById("progressBar").style.width = "0%";
+}
+
+// ============================================================
+// STORAGE MANAGER
+// ============================================================
+document.getElementById("storageToggle").addEventListener("click", function() {
+  var body  = document.getElementById("storageBody");
+  var arrow = document.getElementById("storageArrow");
+  var open  = body.style.display === "none";
+  body.style.display = open ? "block" : "none";
+  arrow.classList.toggle("open", open);
+  if (open) renderStorageManager();
+});
+function renderStorageManager() {
+  renderStorageGroup("storageNames",  getN(),      delN,      function() { renderAC(labIn.value);   renderStorageManager(); });
+  renderStorageGroup("storageYK",     getYK(),     delYK,     function() { renderYKAC(ykIn.value);  renderStorageManager(); });
+  renderStorageGroup("storagePC",     getPCH(),    delPCH,    function() { renderPCAC(pcIn.value);  renderStorageManager(); });
+  renderStorageGroup("storageShift",  getShiftH(), delShiftH, function() { renderStorageManager(); });
+  renderStorageGroup("storageUnit",   getUnitH(),  delUnitH,  function() { renderStorageManager(); });
+}
+function renderStorageGroup(containerId, items, delFn, afterDel) {
+  var container = document.getElementById(containerId); container.innerHTML = "";
+  if (!items.length) {
+    var empty = document.createElement("div"); empty.className = "storage-empty"; empty.textContent = "No saved items";
+    container.appendChild(empty); return;
+  }
+  items.forEach(function(val) { container.appendChild(makeStorageItem(val, function() { delFn(val); afterDel(); })); });
+}
+function makeStorageItem(label, onDel) {
+  var item = document.createElement("div"); item.className = "storage-item";
+  var txt  = document.createElement("span"); txt.textContent = label;
+  var btn  = document.createElement("button"); btn.className = "storage-item-del"; btn.type = "button"; btn.textContent = "\u2715"; btn.title = "Delete";
+  btn.addEventListener("click", onDel);
+  item.appendChild(txt); item.appendChild(btn);
+  return item;
+}
+document.getElementById("clearNamesBtn").addEventListener("click",  function() { localStorage.removeItem(NK);      renderAC(labIn.value);  renderStorageManager(); });
+document.getElementById("clearYKBtn").addEventListener("click",     function() { localStorage.removeItem(NK_YK);   renderYKAC(ykIn.value); renderStorageManager(); });
+document.getElementById("clearPCBtn").addEventListener("click",     function() { localStorage.removeItem(NK_PC_H); renderPCAC(pcIn.value); renderStorageManager(); });
+document.getElementById("clearShiftBtn").addEventListener("click",  function() { localStorage.removeItem(NK_SHIFT); renderStorageManager(); });
+document.getElementById("clearUnitBtn").addEventListener("click",   function() { localStorage.removeItem(NK_UNIT);  renderStorageManager(); });
+
+// Counter buttons — section header
+document.getElementById("counterResetBtn").addEventListener("click", function() { resetCounter(); });
+document.getElementById("counterUndoBtn").addEventListener("click",  function() { undoCounter(); });
+// Floating counter — display only (no buttons)
+
+// Init
+renderCounter();
+updatePendingBanner();
+
+// Auto-fill last session
+(function() {
+  var lastShift = getShiftH()[0];
+  var lastUnit  = getUnitH()[0];
+  var lastLab   = localStorage.getItem(NK_LAST_LAB);
+  var lastPC    = localStorage.getItem(NK_LAST_PC);
+  if (lastShift) setTimeout(function(){ shiftDD.setValue(lastShift); }, 0);
+  if (lastUnit)  setTimeout(function(){ unitDD.setValue(lastUnit);   }, 0);
+  if (lastLab)   document.getElementById("labName").value = lastLab;
+  if (lastPC)    { document.getElementById("pcNo").value = lastPC; validatePC(lastPC); }
+})();
+
+// Floating counter scroll behavior — trigger = sec-counter widget
+(function() {
+  var counter  = document.getElementById("taskCounter");
+  var floating = document.getElementById("floatingCounter");
+  window.addEventListener("scroll", function() {
+    var rect = counter.getBoundingClientRect();
+    floating.classList.toggle("visible", rect.bottom < 0);
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>
