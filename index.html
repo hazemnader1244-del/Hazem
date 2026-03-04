@@ -1130,13 +1130,11 @@ function getCounter() {
 function saveCounter(d) { localStorage.setItem(NK_COUNTER, JSON.stringify(d)); }
 function incrementCounter() {
   var d = getCounter();
-  counterUndoVal = { count: d.count, startTs: d.startTs };
   d.count++;
   saveCounter(d);
   renderCounter();
   bumpEl("taskCounter");
   bumpEl("floatingCount");
-  document.getElementById("counterUndoBtn").style.display = "";
 }
 function bumpEl(id) {
   var el = document.getElementById(id);
@@ -1751,7 +1749,7 @@ function doSubmit(payload, btn) {
     saveTaskIdToHistory(payload.taskId);
     incrementCounter();
     var _sp = (payload.labelerName && payload.labelerName.toLowerCase() === "radwa hassan") && (payload.pcNo && payload.pcNo.toString() === "12");
-    toast(_sp ? "uD83EuDD89uD83EuDD89 Radwa Hassan u2014 PC 12 u2014 Saved successfully uD83EuDD89uD83EuDD89" : "u2713 Saved successfully!", "ok");
+    toast(_sp ? "🦉🦉 Radwa Hassan — PC 12 — Saved successfully 🦉🦉" : "✓ Saved successfully!", "ok");
     btn.disabled    = false;
     btn.textContent = "u2714u00a0 Submit Task";
     resetForm();
