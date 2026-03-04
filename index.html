@@ -179,23 +179,22 @@ header.main-header {
   z-index: 9000;
   background: linear-gradient(135deg, #1c4587 0%, #132f6b 100%);
   border: 1px solid rgba(255,255,255,.18);
-  border-radius: 14px;
-  padding: 8px 18px 7px;
-  display: flex; flex-direction: column; align-items: center; gap: 0;
-  box-shadow: 0 4px 24px rgba(28,69,135,.35), inset 0 1px 0 rgba(255,255,255,.12);
-  transition: top .35s cubic-bezier(.34,1.2,.64,1);
+  border-radius: 50px;
+  padding: 6px 18px 6px 14px;
+  display: flex; flex-direction: row; align-items: center; gap: 8px;
+  box-shadow: 0 4px 20px rgba(28,69,135,.4), inset 0 1px 0 rgba(255,255,255,.12);
+  transition: top .38s cubic-bezier(.34,1.2,.64,1);
   cursor: default;
-  min-width: 90px;
 }
 #floatingCounter.visible { top: 14px; }
 #floatingCounter .fc-label {
   font-size: .52rem; font-weight: 700;
   color: rgba(255,255,255,.45);
-  letter-spacing: 2px; text-transform: uppercase;
+  letter-spacing: 2px; text-transform: uppercase; white-space: nowrap;
 }
 #floatingCounter .fc-count {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.7rem; font-weight: 800;
+  font-size: 1.6rem; font-weight: 800;
   color: #fff; line-height: 1; letter-spacing: -1px;
   transition: transform .18s cubic-bezier(.34,1.56,.64,1), color .18s;
   text-shadow: 0 2px 8px rgba(0,0,0,.25);
@@ -486,35 +485,6 @@ input[type=number] { -moz-appearance:textfield }
   padding:6px 10px;
 }
 .warn-box .warn-icon { font-size:.9rem; font-weight:700; flex-shrink:0 }
-
-/* pending indicator */
-#pendingBanner {
-  display:none;
-  width:100%;
-  background:#fffbeb;
-  border-bottom:2px solid #fcd34d;
-  padding:10px 32px;
-  font-size:.83rem;
-  font-weight:600;
-  color:#b45309;
-  align-items:center;
-  gap:10px;
-}
-#pendingBanner.show { display:flex }
-#pendingBanner .pb-retry {
-  margin-left:auto;
-  background:#fcd34d;
-  border:none;
-  border-radius:6px;
-  padding:4px 14px;
-  font-size:.78rem;
-  font-weight:700;
-  color:#7c4500;
-  cursor:pointer;
-  transition:background .15s;
-}
-#pendingBanner .pb-retry:hover { background:#f5b800 }
-
 .form-footer {
   background:#f7f9fd;
   border-top:1px solid var(--border);
@@ -536,6 +506,16 @@ input[type=number] { -moz-appearance:textfield }
 .subbtn:hover { background:#157a4e; box-shadow:0 4px 20px rgba(26,138,90,.4) }
 .subbtn:active { transform:scale(.99) }
 .subbtn:disabled { opacity:.6; cursor:not-allowed }
+.subbtn.error-state {
+  background: var(--error) !important;
+  box-shadow: 0 3px 12px rgba(192,57,43,.3) !important;
+  animation: errShake .35s ease;
+}
+@keyframes errShake {
+  0%,100% { transform:translateX(0) }
+  20%,60%  { transform:translateX(-4px) }
+  40%,80%  { transform:translateX(4px) }
+}
 .toast {
   position:fixed; bottom:28px; left:50%;
   transform:translateX(-50%) translateY(16px);
@@ -701,8 +681,6 @@ input[type=number] { -moz-appearance:textfield }
   .dup-divider { margin:0 -20px 18px }
   .stage-wrap { display:none }
 }
-
-/* ── Instructions link button ── */
 .instructions-btn {
   margin-left: auto;
   display: flex; align-items: center; gap: 9px;
@@ -723,8 +701,6 @@ input[type=number] { -moz-appearance:textfield }
   color:#6ee7b7; background:rgba(110,231,183,.15); border:1px solid rgba(110,231,183,.35);
   border-radius:20px; padding:2px 8px; margin-left:2px;
 }
-
-/* ── Section counter ── */
 .sec-counter {
   display:flex; align-items:center; gap:10px;
   background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
@@ -749,27 +725,6 @@ input[type=number] { -moz-appearance:textfield }
 .sec-counter-btn:hover { background:rgba(255,255,255,.22); border-color:rgba(255,255,255,.4); color:#fff }
 .sec-counter-btn.undo { color:#fcd34d; border-color:rgba(252,211,77,.5); background:rgba(252,211,77,.15); animation:undoPulse 1s ease infinite alternate }
 .sec-counter-btn.undo:hover { background:rgba(252,211,77,.28); color:#fde68a }
-
-/* ── Floating counter pill ── */
-#floatingCounter {
-  position:fixed; top:-80px; right:28px; z-index:9000;
-  background:linear-gradient(135deg,#1c4587 0%,#132f6b 100%);
-  border:1px solid rgba(255,255,255,.2); border-radius:50px;
-  padding:6px 18px 6px 14px;
-  display:flex; flex-direction:row; align-items:center; gap:8px;
-  box-shadow:0 4px 20px rgba(28,69,135,.4), inset 0 1px 0 rgba(255,255,255,.12);
-  transition:top .38s cubic-bezier(.34,1.2,.64,1); cursor:default;
-}
-#floatingCounter.visible { top:14px }
-#floatingCounter .fc-label { font-size:.52rem; font-weight:700; color:rgba(255,255,255,.45); letter-spacing:2px; text-transform:uppercase; white-space:nowrap }
-#floatingCounter .fc-count {
-  font-family:'Plus Jakarta Sans',sans-serif; font-size:1.6rem; font-weight:800;
-  color:#fff; line-height:1; letter-spacing:-1px;
-  transition:transform .18s cubic-bezier(.34,1.56,.64,1), color .18s;
-  text-shadow:0 2px 8px rgba(0,0,0,.25);
-}
-#floatingCounter .fc-count.bump { transform:scale(1.3); color:#6ee7b7 }
-
 @media(max-width:640px) {
   .instructions-btn span:first-of-type { display:none }
   .header-badge { display:none }
@@ -792,12 +747,6 @@ input[type=number] { -moz-appearance:textfield }
     <span class="topbar-time" id="topTime">Loading...</span>
   </div>
 
-  <!-- Pending data banner -->
-  <div id="pendingBanner">
-    <span>&#9203; يوجد بيانات لم تُرسل بعد — جاري المحاولة...</span>
-    <button type="button" class="pb-retry" id="pbRetryBtn">Retry Now</button>
-  </div>
-
   <header class="main-header">
     <div class="header-meti">METI</div>
     <div class="header-divider"></div>
@@ -805,7 +754,7 @@ input[type=number] { -moz-appearance:textfield }
       <div class="header-full-name">Micro Engineering</div>
       <div class="header-dept">Labeling Operations · Internal System</div>
     </div>
-    <a href="https://docs.google.com/presentation/d/1LQT6yVzWC5tpyijlq0pq1TPJ3j5VVRpi/edit?slide=id.p1#slide=id.p1" target="_blank" class="instructions-btn" id="instructionsBtn">
+    <a href="https://docs.google.com/presentation/d/1LQT6yVzWC5tpyijlq0pq1TPJ3j5VVRpi/edit?slide=id.g3cd077ea473_0_44#slide=id.g3cd077ea473_0_44" target="_blank" class="instructions-btn" id="instructionsBtn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="9 18 15 12 9 6"/>
       </svg>
@@ -817,7 +766,6 @@ input[type=number] { -moz-appearance:textfield }
     <div class="progress-bar-fill" id="progressBar"></div>
   </div>
 
-  <!-- Floating sticky counter pill -->
   <div id="floatingCounter">
     <span class="fc-label">Tasks</span>
     <span class="fc-count" id="floatingCount">0</span>
@@ -1148,7 +1096,7 @@ input[type=number] { -moz-appearance:textfield }
 // ============================================================
 // CONFIG
 // ============================================================
-var SHEET_URL = "https://script.google.com/macros/s/AKfycbwJFIafYhcKW1fthPLe0-wyeN2lc36Gl-1T93S66UO_uGWKBe5k5bv8IXD_l/exec";
+var SHEET_URL   = "https://script.google.com/macros/s/AKfycbwJFIafYhcKW1fthPLe0-wyeN2lc36Gl-1T93S66UO_uGWKBe5k5bv8IXD_l/exec";
 var NK          = "meti_labeler_names";
 var NK_YK       = "meti_yk_history";
 var NK_PC_H     = "meti_pc_history";
@@ -1157,7 +1105,6 @@ var NK_UNIT     = "meti_unit_history";
 var NK_TASK_IDS = "meti_task_ids_history";
 var NK_LAST_LAB = "meti_last_labeler";
 var NK_LAST_PC  = "meti_last_pc";
-var NK_PENDING  = "meti_pending";
 var TASK_WINDOW_MS = 8 * 60 * 60 * 1000;
 
 // ============================================================
@@ -1180,11 +1127,7 @@ function getCounter() {
     return d;
   } catch(e) { return { count: 0, startTs: Date.now() }; }
 }
-
-function saveCounter(d) {
-  localStorage.setItem(NK_COUNTER, JSON.stringify(d));
-}
-
+function saveCounter(d) { localStorage.setItem(NK_COUNTER, JSON.stringify(d)); }
 function incrementCounter() {
   var d = getCounter();
   counterUndoVal = { count: d.count, startTs: d.startTs };
@@ -1195,7 +1138,6 @@ function incrementCounter() {
   bumpEl("floatingCount");
   document.getElementById("counterUndoBtn").style.display = "";
 }
-
 function bumpEl(id) {
   var el = document.getElementById(id);
   if (!el) return;
@@ -1204,7 +1146,6 @@ function bumpEl(id) {
   el.classList.add("bump");
   setTimeout(function() { el.classList.remove("bump"); }, 300);
 }
-
 function resetCounter() {
   var d = getCounter();
   counterUndoVal = { count: d.count, startTs: d.startTs };
@@ -1218,7 +1159,6 @@ function resetCounter() {
     counterUndoVal = null;
   }, 10000);
 }
-
 function undoCounter() {
   if (counterUndoVal !== null) {
     saveCounter(counterUndoVal);
@@ -1228,14 +1168,11 @@ function undoCounter() {
     document.getElementById("counterUndoBtn").style.display = "none";
   }
 }
-
 function renderCounter() {
   var d = getCounter();
-  var n = d.count;
-  document.getElementById("taskCounter").textContent = n;
-  document.getElementById("floatingCount").textContent = n;
+  document.getElementById("taskCounter").textContent  = d.count;
+  document.getElementById("floatingCount").textContent = d.count;
 }
-
 setInterval(function() { getCounter(); renderCounter(); }, 60000);
 
 // ============================================================
@@ -1263,9 +1200,9 @@ function formatTimeAgo(ts) {
   var mins  = Math.floor(diff / 60000);
   var hours = Math.floor(diff / 3600000);
   var days  = Math.floor(diff / 86400000);
-  if (mins < 1)  return "less than a minute ago";
-  if (mins < 60) return mins + " minute" + (mins > 1 ? "s" : "") + " ago";
-  if (hours < 24) return hours + " hour" + (hours > 1 ? "s" : "") + " ago";
+  if (mins < 1)   return "less than a minute ago";
+  if (mins < 60)  return mins + " minute" + (mins > 1 ? "s" : "") + " ago";
+  if (hours < 24) return hours + " hour"  + (hours > 1 ? "s" : "") + " ago";
   return days + " day" + (days > 1 ? "s" : "") + " ago";
 }
 
@@ -1354,16 +1291,16 @@ function getYK()     { try { return JSON.parse(localStorage.getItem(NK_YK))    |
 function getPCH()    { try { return JSON.parse(localStorage.getItem(NK_PC_H))  || []; } catch(e) { return []; } }
 function getShiftH() { try { return JSON.parse(localStorage.getItem(NK_SHIFT)) || []; } catch(e) { return []; } }
 function getUnitH()  { try { return JSON.parse(localStorage.getItem(NK_UNIT))  || []; } catch(e) { return []; } }
-function saveN(n)       { if (!n.trim()) return; var a = getN();      if (a.indexOf(n) === -1) { a.unshift(n); localStorage.setItem(NK,       JSON.stringify(a.slice(0,60))); } }
-function saveYK(v)      { if (!v.trim()) return; var a = getYK();     if (a.indexOf(v) === -1) { a.unshift(v); localStorage.setItem(NK_YK,    JSON.stringify(a.slice(0,20))); } }
-function savePCH(v)     { if (!v.trim()) return; var a = getPCH();    if (a.indexOf(v) === -1) { a.unshift(v); localStorage.setItem(NK_PC_H,  JSON.stringify(a.slice(0,20))); } }
-function saveShiftH(v)  { if (!v.trim()) return; var a = getShiftH(); if (a.indexOf(v) === -1) { a.unshift(v); localStorage.setItem(NK_SHIFT, JSON.stringify(a.slice(0,10))); } }
-function saveUnitH(v)   { if (!v.trim()) return; var a = getUnitH();  if (a.indexOf(v) === -1) { a.unshift(v); localStorage.setItem(NK_UNIT,  JSON.stringify(a.slice(0,10))); } }
-function delN(n)      { localStorage.setItem(NK,       JSON.stringify(getN().filter(function(x){ return x!==n; }))); }
-function delYK(v)     { localStorage.setItem(NK_YK,    JSON.stringify(getYK().filter(function(x){ return x!==v; }))); }
-function delPCH(v)    { localStorage.setItem(NK_PC_H,  JSON.stringify(getPCH().filter(function(x){ return x!==v; }))); }
-function delShiftH(v) { localStorage.setItem(NK_SHIFT, JSON.stringify(getShiftH().filter(function(x){ return x!==v; }))); }
-function delUnitH(v)  { localStorage.setItem(NK_UNIT,  JSON.stringify(getUnitH().filter(function(x){ return x!==v; }))); }
+function saveN(n)      { if (!n.trim()) return; var a = getN();      if (a.indexOf(n)===-1){a.unshift(n); localStorage.setItem(NK,       JSON.stringify(a.slice(0,60)));} }
+function saveYK(v)     { if (!v.trim()) return; var a = getYK();     if (a.indexOf(v)===-1){a.unshift(v); localStorage.setItem(NK_YK,    JSON.stringify(a.slice(0,20)));} }
+function savePCH(v)    { if (!v.trim()) return; var a = getPCH();    if (a.indexOf(v)===-1){a.unshift(v); localStorage.setItem(NK_PC_H,  JSON.stringify(a.slice(0,20)));} }
+function saveShiftH(v) { if (!v.trim()) return; var a = getShiftH(); if (a.indexOf(v)===-1){a.unshift(v); localStorage.setItem(NK_SHIFT, JSON.stringify(a.slice(0,10)));} }
+function saveUnitH(v)  { if (!v.trim()) return; var a = getUnitH();  if (a.indexOf(v)===-1){a.unshift(v); localStorage.setItem(NK_UNIT,  JSON.stringify(a.slice(0,10)));} }
+function delN(n)      { localStorage.setItem(NK,       JSON.stringify(getN().filter(function(x){return x!==n;}))); }
+function delYK(v)     { localStorage.setItem(NK_YK,    JSON.stringify(getYK().filter(function(x){return x!==v;}))); }
+function delPCH(v)    { localStorage.setItem(NK_PC_H,  JSON.stringify(getPCH().filter(function(x){return x!==v;}))); }
+function delShiftH(v) { localStorage.setItem(NK_SHIFT, JSON.stringify(getShiftH().filter(function(x){return x!==v;}))); }
+function delUnitH(v)  { localStorage.setItem(NK_UNIT,  JSON.stringify(getUnitH().filter(function(x){return x!==v;}))); }
 
 function checkPassWarn() {
   var currentPass = document.getElementById("pass").value;
@@ -1378,14 +1315,6 @@ function checkPassWarn() {
       pIcon.textContent = "\u2713"; pIcon.style.color = "var(--success)"; pIcon.style.opacity = "1";
     }
   }
-}
-
-// ============================================================
-// PENDING BANNER
-// ============================================================
-function updatePendingBanner() {
-  var banner = document.getElementById("pendingBanner");
-  banner.classList.toggle("show", !!localStorage.getItem(NK_PENDING));
 }
 
 // ============================================================
@@ -1420,8 +1349,8 @@ function tick() {
   var d   = new Date();
   var el  = document.getElementById("ts");
   var top = document.getElementById("topTime");
-  if (el)  el.value      = d.toLocaleString("en-US", {timeZone:"Africa/Cairo", month:"2-digit",day:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});
-  if (top) top.textContent = d.toLocaleString("en-US", {timeZone:"Africa/Cairo", weekday:"short",month:"short",day:"numeric",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:true});
+  if (el)  el.value       = d.toLocaleString("en-US", {timeZone:"Africa/Cairo",month:"2-digit",day:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:true});
+  if (top) top.textContent = d.toLocaleString("en-US", {timeZone:"Africa/Cairo",weekday:"short",month:"short",day:"numeric",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:true});
 }
 tick();
 setInterval(tick, 1000);
@@ -1484,166 +1413,156 @@ var pcAcL = document.getElementById("pcAcList");
 var pcActive = -1;
 
 function renderPCAC(q) {
-  var hits = q ? getPCH().filter(function(n) { return n.toLowerCase().indexOf(q.toLowerCase()) > -1; }) : getPCH();
+  var hits = q ? getPCH().filter(function(n){return n.toLowerCase().indexOf(q.toLowerCase())>-1;}) : getPCH();
   pcActive = -1;
-  if (!hits.length) { pcAcL.innerHTML = ""; pcAcL.classList.remove("open"); return; }
+  if (!hits.length) { pcAcL.innerHTML=""; pcAcL.classList.remove("open"); return; }
   pcAcL.innerHTML = "";
   hits.forEach(function(val) {
     var li = document.createElement("li");
     var sp = document.createElement("span"); sp.textContent = val;
-    var dl = document.createElement("button"); dl.className = "delbtn"; dl.type = "button"; dl.textContent = "\u2715";
+    var dl = document.createElement("button"); dl.className="delbtn"; dl.type="button"; dl.textContent="\u2715";
     li.appendChild(sp); li.appendChild(dl);
     li.addEventListener("mousedown", function(e) {
-      if (e.target === dl) {
-        e.preventDefault(); delPCH(val); renderPCAC(pcIn.value);
-        if (document.getElementById("storageBody").style.display !== "none") renderStorageManager();
-        return;
-      }
-      e.preventDefault(); pcIn.value = val; pcAcL.classList.remove("open"); pcActive = -1; validatePC(val);
+      if (e.target===dl){e.preventDefault(); delPCH(val); renderPCAC(pcIn.value); if(document.getElementById("storageBody").style.display!=="none") renderStorageManager(); return;}
+      e.preventDefault(); pcIn.value=val; pcAcL.classList.remove("open"); pcActive=-1; validatePC(val);
     });
     pcAcL.appendChild(li);
   });
   pcAcL.classList.add("open");
 }
 function validatePC(v) {
-  if (!v) { pcIn.style.borderColor = ""; return; }
-  if (/^qtc$/i.test(v)) { pcIn.value = "QTC"; pcIn.style.borderColor = "#1a8a5a"; return; }
-  if (/^sv$/i.test(v))  { pcIn.value = "SV";  pcIn.style.borderColor = "#1a8a5a"; return; }
+  if (!v){pcIn.style.borderColor=""; return;}
+  if (/^qtc$/i.test(v)){pcIn.value="QTC"; pcIn.style.borderColor="#1a8a5a"; return;}
+  if (/^sv$/i.test(v)) {pcIn.value="SV";  pcIn.style.borderColor="#1a8a5a"; return;}
   if (/^\d+$/.test(v)) {
-    var num = parseInt(v, 10);
-    pcIn.style.borderColor = (num >= 1 && num <= 100) ? "#1a8a5a" : "var(--error)";
-  } else {
-    pcIn.style.borderColor = "var(--error)";
-  }
+    var num=parseInt(v,10);
+    pcIn.style.borderColor=(num>=1&&num<=100)?"#1a8a5a":"var(--error)";
+  } else { pcIn.style.borderColor="var(--error)"; }
 }
-pcIn.addEventListener("input",  function() { validatePC(this.value.trim()); renderPCAC(this.value); });
-pcIn.addEventListener("focus",  function() { renderPCAC(this.value); });
-pcIn.addEventListener("blur",   function() { setTimeout(function() { pcAcL.classList.remove("open"); pcActive = -1; }, 180); });
+pcIn.addEventListener("input",  function(){validatePC(this.value.trim()); renderPCAC(this.value);});
+pcIn.addEventListener("focus",  function(){renderPCAC(this.value);});
+pcIn.addEventListener("blur",   function(){setTimeout(function(){pcAcL.classList.remove("open"); pcActive=-1;},180);});
 pcIn.addEventListener("keydown", function(e) {
-  var items = pcAcL.querySelectorAll("li");
+  var items=pcAcL.querySelectorAll("li");
   if (!items.length) return;
-  if (e.key === "ArrowDown") { e.preventDefault(); pcActive = Math.min(pcActive+1, items.length-1); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===pcActive);}); }
-  else if (e.key === "ArrowUp")  { e.preventDefault(); pcActive = Math.max(pcActive-1, 0); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===pcActive);}); }
-  else if (e.key === "Enter" && pcActive >= 0) { e.preventDefault(); var v = items[pcActive].querySelector("span").textContent; pcIn.value = v; pcAcL.classList.remove("open"); pcActive = -1; validatePC(v); }
-  else if (e.key === "Escape") { pcAcL.classList.remove("open"); pcActive = -1; }
+  if (e.key==="ArrowDown"){e.preventDefault(); pcActive=Math.min(pcActive+1,items.length-1); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===pcActive);});}
+  else if(e.key==="ArrowUp"){e.preventDefault(); pcActive=Math.max(pcActive-1,0); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===pcActive);});}
+  else if(e.key==="Enter"&&pcActive>=0){e.preventDefault(); var v=items[pcActive].querySelector("span").textContent; pcIn.value=v; pcAcL.classList.remove("open"); pcActive=-1; validatePC(v);}
+  else if(e.key==="Escape"){pcAcL.classList.remove("open"); pcActive=-1;}
 });
 
 // ============================================================
 // SEARCHABLE DROPDOWN FACTORY
 // ============================================================
 function makeSearchableDropdown(opts) {
-  var btn     = document.getElementById(opts.btnId);
-  var inp     = document.getElementById(opts.inputId);
-  var list    = document.getElementById(opts.listId);
-  var hidden  = document.getElementById(opts.hiddenId);
-  var dispEl  = opts.displayId ? document.getElementById(opts.displayId) : null;
-  var allItems = Array.from(list.querySelectorAll("li[data-v]"));
+  var btn    = document.getElementById(opts.btnId);
+  var inp    = document.getElementById(opts.inputId);
+  var list   = document.getElementById(opts.listId);
+  var hidden = document.getElementById(opts.hiddenId);
+  var dispEl = opts.displayId ? document.getElementById(opts.displayId) : null;
+  var allItems    = Array.from(list.querySelectorAll("li[data-v]"));
   var activeIdx   = -1;
   var selectedVal = "";
 
   function open() {
     btn.classList.add("open"); list.classList.add("open");
-    if (dispEl) dispEl.style.display = "none";
-    inp.style.display = ""; inp.value = ""; filterItems(""); activeIdx = -1;
-    setTimeout(function() { inp.focus(); }, 0);
+    if (dispEl) dispEl.style.display="none";
+    inp.style.display=""; inp.value=""; filterItems(""); activeIdx=-1;
+    setTimeout(function(){inp.focus();},0);
   }
   function close() {
     btn.classList.remove("open"); list.classList.remove("open");
-    if (!hidden.value) {
-      inp.value = ""; inp.style.display = "";
-      if (dispEl) { dispEl.innerHTML = ""; dispEl.style.display = "none"; }
+    if (!hidden.value){
+      inp.value=""; inp.style.display="";
+      if (dispEl){dispEl.innerHTML=""; dispEl.style.display="none";}
     } else {
-      if (dispEl) {
-        var found = allItems.find(function(li) { return li.dataset.v === hidden.value; });
-        if (found) { dispEl.innerHTML = found.innerHTML; dispEl.style.display = "flex"; }
-        inp.style.display = "none";
-      } else { inp.value = hidden.value; }
+      if (dispEl){
+        var found=allItems.find(function(li){return li.dataset.v===hidden.value;});
+        if (found){dispEl.innerHTML=found.innerHTML; dispEl.style.display="flex";}
+        inp.style.display="none";
+      } else { inp.value=hidden.value; }
     }
-    activeIdx = -1;
+    activeIdx=-1;
   }
   function filterItems(q) {
-    var count = 0;
-    allItems.forEach(function(li) {
-      var text  = (li.dataset.v + " " + li.textContent).toLowerCase();
-      var match = !q || text.indexOf(q.toLowerCase()) > -1;
-      li.style.display = match ? "" : "none";
+    var count=0;
+    allItems.forEach(function(li){
+      var text=(li.dataset.v+" "+li.textContent).toLowerCase();
+      var match=!q||text.indexOf(q.toLowerCase())>-1;
+      li.style.display=match?"":"none";
       if (match) count++;
     });
-    var empty = list.querySelector(".sd-empty");
+    var empty=list.querySelector(".sd-empty");
     if (empty) empty.remove();
-    if (count === 0) {
-      var em = document.createElement("li"); em.className = "sd-empty"; em.textContent = "No results found";
-      list.appendChild(em);
-    }
-    activeIdx = -1; updateHover();
+    if (count===0){var em=document.createElement("li"); em.className="sd-empty"; em.textContent="No results found"; list.appendChild(em);}
+    activeIdx=-1; updateHover();
   }
   function updateHover() {
-    var visible = allItems.filter(function(li) { return li.style.display !== "none"; });
-    visible.forEach(function(li, i) { li.classList.toggle("sd-hover", i === activeIdx); });
+    var visible=allItems.filter(function(li){return li.style.display!=="none";});
+    visible.forEach(function(li,i){li.classList.toggle("sd-hover",i===activeIdx);});
   }
   function selectItem(li) {
-    selectedVal = li.dataset.v; hidden.value = selectedVal;
-    allItems.forEach(function(x) { x.classList.remove("sel"); });
-    li.classList.add("sel"); btn.style.borderColor = "#1a8a5a";
-    if (dispEl) {
-      dispEl.innerHTML = li.innerHTML; dispEl.style.display = "flex"; inp.style.display = "none"; inp.value = selectedVal;
-    } else { inp.value = selectedVal; }
+    selectedVal=li.dataset.v; hidden.value=selectedVal;
+    allItems.forEach(function(x){x.classList.remove("sel");});
+    li.classList.add("sel"); btn.style.borderColor="#1a8a5a";
+    if (dispEl){dispEl.innerHTML=li.innerHTML; dispEl.style.display="flex"; inp.style.display="none"; inp.value=selectedVal;}
+    else {inp.value=selectedVal;}
     btn.classList.remove("open"); list.classList.remove("open");
-    activeIdx = -1; updateProgress();
+    activeIdx=-1; updateProgress();
     if (opts.onSelect) opts.onSelect(selectedVal);
   }
-  btn.addEventListener("mousedown", function(e) {
-    if (e.target === inp) return;
+  btn.addEventListener("mousedown",function(e){
+    if (e.target===inp) return;
     e.preventDefault();
-    list.classList.contains("open") ? close() : open();
+    list.classList.contains("open")?close():open();
   });
-  if (dispEl) {
-    dispEl.addEventListener("mousedown", function(e) { e.preventDefault(); open(); });
-    dispEl.style.cursor = "pointer";
+  if (dispEl){
+    dispEl.addEventListener("mousedown",function(e){e.preventDefault(); open();});
+    dispEl.style.cursor="pointer";
   }
-  inp.addEventListener("focus", function() { if (!list.classList.contains("open")) open(); });
-  inp.addEventListener("input", function() {
-    filterItems(this.value); hidden.value = ""; btn.style.borderColor = ""; selectedVal = "";
-    if (dispEl) { dispEl.innerHTML = ""; dispEl.style.display = "none"; }
+  inp.addEventListener("focus",function(){if(!list.classList.contains("open")) open();});
+  inp.addEventListener("input",function(){
+    filterItems(this.value); hidden.value=""; btn.style.borderColor=""; selectedVal="";
+    if (dispEl){dispEl.innerHTML=""; dispEl.style.display="none";}
   });
-  inp.addEventListener("blur",   function() { setTimeout(close, 160); });
-  inp.addEventListener("keydown", function(e) {
-    var visible = allItems.filter(function(li) { return li.style.display !== "none"; });
-    if (e.key === "ArrowDown") { e.preventDefault(); activeIdx = Math.min(activeIdx+1, visible.length-1); updateHover(); if(visible[activeIdx]) visible[activeIdx].scrollIntoView({block:"nearest"}); }
-    else if (e.key === "ArrowUp")  { e.preventDefault(); activeIdx = Math.max(activeIdx-1, 0); updateHover(); if(visible[activeIdx]) visible[activeIdx].scrollIntoView({block:"nearest"}); }
-    else if (e.key === "Enter") { e.preventDefault(); if(activeIdx>=0 && visible[activeIdx]) selectItem(visible[activeIdx]); }
-    else if (e.key === "Escape") { close(); }
+  inp.addEventListener("blur",  function(){setTimeout(close,160);});
+  inp.addEventListener("keydown",function(e){
+    var visible=allItems.filter(function(li){return li.style.display!=="none";});
+    if (e.key==="ArrowDown"){e.preventDefault(); activeIdx=Math.min(activeIdx+1,visible.length-1); updateHover(); if(visible[activeIdx]) visible[activeIdx].scrollIntoView({block:"nearest"});}
+    else if(e.key==="ArrowUp"){e.preventDefault(); activeIdx=Math.max(activeIdx-1,0); updateHover(); if(visible[activeIdx]) visible[activeIdx].scrollIntoView({block:"nearest"});}
+    else if(e.key==="Enter"){e.preventDefault(); if(activeIdx>=0&&visible[activeIdx]) selectItem(visible[activeIdx]);}
+    else if(e.key==="Escape"){close();}
   });
-  allItems.forEach(function(li) {
-    li.addEventListener("mousedown", function(e) { e.preventDefault(); selectItem(li); });
+  allItems.forEach(function(li){
+    li.addEventListener("mousedown",function(e){e.preventDefault(); selectItem(li);});
   });
   return {
-    reset: function() {
-      hidden.value = ""; inp.value = ""; inp.style.display = ""; selectedVal = ""; btn.style.borderColor = "";
-      allItems.forEach(function(x) { x.classList.remove("sel"); });
-      if (dispEl) { dispEl.innerHTML = ""; dispEl.style.display = "none"; }
+    reset: function(){
+      hidden.value=""; inp.value=""; inp.style.display=""; selectedVal=""; btn.style.borderColor="";
+      allItems.forEach(function(x){x.classList.remove("sel");});
+      if (dispEl){dispEl.innerHTML=""; dispEl.style.display="none";}
       filterItems("");
     },
-    setValue: function(val) {
-      var li = allItems.find(function(x) { return x.dataset.v === val; });
+    setValue: function(val){
+      var li=allItems.find(function(x){return x.dataset.v===val;});
       if (li) selectItem(li);
     },
-    getValue: function() { return hidden.value; }
+    getValue: function(){return hidden.value;}
   };
 }
 
-var shiftDD    = makeSearchableDropdown({btnId:"shiftBtn",    inputId:"shiftInput",    listId:"shiftList",    hiddenId:"shift",       onSelect: function(v){ saveShiftH(v); }});
-var unitDD     = makeSearchableDropdown({btnId:"unitBtn",     inputId:"unitInput",     listId:"unitList",     hiddenId:"unit",        onSelect: function(v){ saveUnitH(v);  }});
+var shiftDD    = makeSearchableDropdown({btnId:"shiftBtn",    inputId:"shiftInput",    listId:"shiftList",    hiddenId:"shift",       onSelect:function(v){saveShiftH(v);}});
+var unitDD     = makeSearchableDropdown({btnId:"unitBtn",     inputId:"unitInput",     listId:"unitList",     hiddenId:"unit",        onSelect:function(v){saveUnitH(v);}});
 var modalityDD = makeSearchableDropdown({btnId:"modalityBtn", inputId:"modalityInput", listId:"modalityList", hiddenId:"modality"});
 var queueDD    = makeSearchableDropdown({btnId:"queueBtn",    inputId:"queueInput",    listId:"queueList",    hiddenId:"qName",       displayId:"queueDisplay"});
-var passDD     = makeSearchableDropdown({btnId:"passBtn",     inputId:"passInput",     listId:"passList",     hiddenId:"pass",        onSelect: function(){ checkPassWarn(); }});
-var qtcShiftDD = makeSearchableDropdown({btnId:"qtcShiftBtn", inputId:"qtcShiftInput", listId:"qtcShiftList", hiddenId:"qtcShiftSel", onSelect: function(val){ buildQTCGrid(val); var s = document.getElementById("qtcSearch"); if(s) s.value=""; }});
+var passDD     = makeSearchableDropdown({btnId:"passBtn",     inputId:"passInput",     listId:"passList",     hiddenId:"pass",        onSelect:function(){checkPassWarn();}});
+var qtcShiftDD = makeSearchableDropdown({btnId:"qtcShiftBtn", inputId:"qtcShiftInput", listId:"qtcShiftList", hiddenId:"qtcShiftSel", onSelect:function(val){buildQTCGrid(val); var s=document.getElementById("qtcSearch"); if(s) s.value="";}});
 
 document.addEventListener("click", function(e) {
-  ["shiftBtn","unitBtn","qtcShiftBtn","modalityBtn","queueBtn","passBtn"].forEach(function(id) {
-    var b = document.getElementById(id);
-    var l = document.getElementById(id.replace("Btn","List"));
-    if (b && !b.contains(e.target)) { b.classList.remove("open"); if(l) l.classList.remove("open"); }
+  ["shiftBtn","unitBtn","qtcShiftBtn","modalityBtn","queueBtn","passBtn"].forEach(function(id){
+    var b=document.getElementById(id);
+    var l=document.getElementById(id.replace("Btn","List"));
+    if (b&&!b.contains(e.target)){b.classList.remove("open"); if(l) l.classList.remove("open");}
   });
 });
 
@@ -1655,33 +1574,33 @@ var acL      = document.getElementById("acList");
 var acActive = -1;
 
 function renderAC(q) {
-  var hits = q ? getN().filter(function(n) { return n.toLowerCase().indexOf(q.toLowerCase()) > -1; }) : getN();
-  acActive = -1;
-  if (!hits.length) { acL.innerHTML = ""; acL.classList.remove("open"); return; }
-  acL.innerHTML = "";
-  hits.forEach(function(name) {
-    var li = document.createElement("li");
-    var sp = document.createElement("span"); sp.textContent = name;
-    var dl = document.createElement("button"); dl.className = "delbtn"; dl.type = "button"; dl.textContent = "\u2715";
+  var hits=q?getN().filter(function(n){return n.toLowerCase().indexOf(q.toLowerCase())>-1;}):getN();
+  acActive=-1;
+  if (!hits.length){acL.innerHTML=""; acL.classList.remove("open"); return;}
+  acL.innerHTML="";
+  hits.forEach(function(name){
+    var li=document.createElement("li");
+    var sp=document.createElement("span"); sp.textContent=name;
+    var dl=document.createElement("button"); dl.className="delbtn"; dl.type="button"; dl.textContent="\u2715";
     li.appendChild(sp); li.appendChild(dl);
-    li.addEventListener("mousedown", function(e) {
-      if (e.target === dl) { e.preventDefault(); delN(name); renderAC(labIn.value); if(document.getElementById("storageBody").style.display !== "none") renderStorageManager(); return; }
-      e.preventDefault(); labIn.value = name; acL.classList.remove("open"); acActive = -1;
+    li.addEventListener("mousedown",function(e){
+      if (e.target===dl){e.preventDefault(); delN(name); renderAC(labIn.value); if(document.getElementById("storageBody").style.display!=="none") renderStorageManager(); return;}
+      e.preventDefault(); labIn.value=name; acL.classList.remove("open"); acActive=-1;
     });
     acL.appendChild(li);
   });
   acL.classList.add("open");
 }
-labIn.addEventListener("input",  function() { renderAC(this.value); });
-labIn.addEventListener("focus",  function() { renderAC(this.value); });
-labIn.addEventListener("blur",   function() { setTimeout(function() { acL.classList.remove("open"); acActive = -1; }, 180); });
-labIn.addEventListener("keydown", function(e) {
-  var items = acL.querySelectorAll("li");
+labIn.addEventListener("input",  function(){renderAC(this.value);});
+labIn.addEventListener("focus",  function(){renderAC(this.value);});
+labIn.addEventListener("blur",   function(){setTimeout(function(){acL.classList.remove("open"); acActive=-1;},180);});
+labIn.addEventListener("keydown",function(e){
+  var items=acL.querySelectorAll("li");
   if (!items.length) return;
-  if (e.key === "ArrowDown") { e.preventDefault(); acActive = Math.min(acActive+1, items.length-1); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===acActive);}); }
-  else if (e.key === "ArrowUp")  { e.preventDefault(); acActive = Math.max(acActive-1, 0); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===acActive);}); }
-  else if (e.key === "Enter" && acActive >= 0) { e.preventDefault(); labIn.value = items[acActive].querySelector("span").textContent; acL.classList.remove("open"); acActive = -1; }
-  else if (e.key === "Escape") { acL.classList.remove("open"); acActive = -1; }
+  if (e.key==="ArrowDown"){e.preventDefault(); acActive=Math.min(acActive+1,items.length-1); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===acActive);});}
+  else if(e.key==="ArrowUp"){e.preventDefault(); acActive=Math.max(acActive-1,0); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===acActive);});}
+  else if(e.key==="Enter"&&acActive>=0){e.preventDefault(); labIn.value=items[acActive].querySelector("span").textContent; acL.classList.remove("open"); acActive=-1;}
+  else if(e.key==="Escape"){acL.classList.remove("open"); acActive=-1;}
 });
 
 // ============================================================
@@ -1692,141 +1611,144 @@ var ykAcL    = document.getElementById("ykAcList");
 var ykActive = -1;
 
 function validateYK(v) {
-  var hint = document.getElementById("ykHint");
-  if (!v) { ykIn.style.borderColor = ""; hint.style.color = "var(--text-muted)"; hint.removeAttribute("dir"); hint.textContent = "6-digit code | or email format: me123456@meti.ai"; return; }
-  var is6 = /^\d{6}$/.test(v);
-  var isE = /^[a-zA-Z]{2}\d+@meti\.ai$/i.test(v);
-  if (is6 || isE) {
-    ykIn.style.borderColor = "#1a8a5a"; hint.style.color = "var(--success)"; hint.removeAttribute("dir");
-    hint.textContent = is6 ? "\u2713 Valid 6-digit code" : "\u2713 Valid email"; ce("yk");
+  var hint=document.getElementById("ykHint");
+  if (!v){ykIn.style.borderColor=""; hint.style.color="var(--text-muted)"; hint.removeAttribute("dir"); hint.textContent="6-digit code | or email format: me123456@meti.ai"; return;}
+  var is6=/^\d{6}$/.test(v);
+  var isE=/^[a-zA-Z]{2}\d+@meti\.ai$/i.test(v);
+  if (is6||isE){
+    ykIn.style.borderColor="#1a8a5a"; hint.style.color="var(--success)"; hint.removeAttribute("dir");
+    hint.textContent=is6?"\u2713 Valid 6-digit code":"\u2713 Valid email"; ce("yk");
   } else {
-    ykIn.style.borderColor = "var(--error)"; hint.style.color = "var(--error)"; hint.setAttribute("dir","rtl");
-    hint.textContent = "\u0644\u0627\u0632\u0645 \u064a\u0643\u0648\u0646 6 \u0627\u0631\u0642\u0627\u0645 \u0627\u0648 \u0627\u0644\u0634\u0643\u0644 \u062f\u0647 me123456@meti.ai";
+    ykIn.style.borderColor="var(--error)"; hint.style.color="var(--error)"; hint.setAttribute("dir","rtl");
+    hint.textContent="\u0644\u0627\u0632\u0645 \u064a\u0643\u0648\u0646 6 \u0627\u0631\u0642\u0627\u0645 \u0627\u0648 \u0627\u0644\u0634\u0643\u0644 \u062f\u0647 me123456@meti.ai";
   }
 }
 function renderYKAC(q) {
-  var hits = q ? getYK().filter(function(n) { return n.toLowerCase().indexOf(q.toLowerCase()) > -1; }) : getYK();
-  ykActive = -1;
-  if (!hits.length) { ykAcL.innerHTML = ""; ykAcL.classList.remove("open"); return; }
-  ykAcL.innerHTML = "";
-  hits.forEach(function(val) {
-    var li = document.createElement("li");
-    var sp = document.createElement("span"); sp.textContent = val;
-    var dl = document.createElement("button"); dl.className = "delbtn"; dl.type = "button"; dl.textContent = "\u2715";
+  var hits=q?getYK().filter(function(n){return n.toLowerCase().indexOf(q.toLowerCase())>-1;}):getYK();
+  ykActive=-1;
+  if (!hits.length){ykAcL.innerHTML=""; ykAcL.classList.remove("open"); return;}
+  ykAcL.innerHTML="";
+  hits.forEach(function(val){
+    var li=document.createElement("li");
+    var sp=document.createElement("span"); sp.textContent=val;
+    var dl=document.createElement("button"); dl.className="delbtn"; dl.type="button"; dl.textContent="\u2715";
     li.appendChild(sp); li.appendChild(dl);
-    li.addEventListener("mousedown", function(e) {
-      if (e.target === dl) { e.preventDefault(); delYK(val); renderYKAC(ykIn.value); if(document.getElementById("storageBody").style.display !== "none") renderStorageManager(); return; }
-      e.preventDefault(); ykIn.value = val; ykAcL.classList.remove("open"); ykActive = -1; validateYK(val);
+    li.addEventListener("mousedown",function(e){
+      if (e.target===dl){e.preventDefault(); delYK(val); renderYKAC(ykIn.value); if(document.getElementById("storageBody").style.display!=="none") renderStorageManager(); return;}
+      e.preventDefault(); ykIn.value=val; ykAcL.classList.remove("open"); ykActive=-1; validateYK(val);
     });
     ykAcL.appendChild(li);
   });
   ykAcL.classList.add("open");
 }
-ykIn.addEventListener("input",  function() { validateYK(this.value.trim()); renderYKAC(this.value); });
-ykIn.addEventListener("focus",  function() { renderYKAC(this.value); });
-ykIn.addEventListener("blur",   function() { setTimeout(function() { ykAcL.classList.remove("open"); ykActive = -1; }, 180); });
-ykIn.addEventListener("keydown", function(e) {
-  var items = ykAcL.querySelectorAll("li");
+ykIn.addEventListener("input",  function(){validateYK(this.value.trim()); renderYKAC(this.value);});
+ykIn.addEventListener("focus",  function(){renderYKAC(this.value);});
+ykIn.addEventListener("blur",   function(){setTimeout(function(){ykAcL.classList.remove("open"); ykActive=-1;},180);});
+ykIn.addEventListener("keydown",function(e){
+  var items=ykAcL.querySelectorAll("li");
   if (!items.length) return;
-  if (e.key === "ArrowDown") { e.preventDefault(); ykActive = Math.min(ykActive+1, items.length-1); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===ykActive);}); }
-  else if (e.key === "ArrowUp")  { e.preventDefault(); ykActive = Math.max(ykActive-1, 0); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===ykActive);}); }
-  else if (e.key === "Enter" && ykActive >= 0) { e.preventDefault(); var v = items[ykActive].querySelector("span").textContent; ykIn.value = v; ykAcL.classList.remove("open"); ykActive = -1; validateYK(v); }
-  else if (e.key === "Escape") { ykAcL.classList.remove("open"); ykActive = -1; }
+  if (e.key==="ArrowDown"){e.preventDefault(); ykActive=Math.min(ykActive+1,items.length-1); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===ykActive);});}
+  else if(e.key==="ArrowUp"){e.preventDefault(); ykActive=Math.max(ykActive-1,0); items.forEach(function(x,i){x.classList.toggle("ac-hover",i===ykActive);});}
+  else if(e.key==="Enter"&&ykActive>=0){e.preventDefault(); var v=items[ykActive].querySelector("span").textContent; ykIn.value=v; ykAcL.classList.remove("open"); ykActive=-1; validateYK(v);}
+  else if(e.key==="Escape"){ykAcL.classList.remove("open"); ykActive=-1;}
 });
 
 // ============================================================
 // QTC GRID BUILDER
 // ============================================================
 function buildQTCGrid(shift) {
-  var grid = document.getElementById("qtcGrid");
-  var disp = document.getElementById("qtcSelectedDisplay");
-  var wrap = document.getElementById("qtcPickerWrap");
-  var msg  = document.getElementById("qtcShiftMsg");
-  var hid  = document.getElementById("qtcName");
-  selectedQTC = null; hid.value = ""; disp.innerHTML = ""; grid.innerHTML = "";
-  var list = QTC_DATA[shift];
-  if (!list) { wrap.style.display = "none"; msg.style.display = "block"; return; }
-  msg.style.display = "none"; wrap.style.display = "block";
-  list.forEach(function(p) {
-    var card = document.createElement("div"); card.className = "qtc-card";
-    card.innerHTML = '<div class="qtc-check"></div><div><div class="qtc-name">' + p.name + '</div>' + (p.role ? '<div class="qtc-role">' + p.role + '</div>' : '') + '</div>';
-    card.addEventListener("click", function() {
-      grid.querySelectorAll(".qtc-card.selected").forEach(function(c) { c.classList.remove("selected"); c.querySelector(".qtc-check").textContent = ""; });
-      card.classList.add("selected"); card.querySelector(".qtc-check").textContent = "\u2713";
-      selectedQTC = p.name; hid.value = selectedQTC;
-      disp.innerHTML = "";
-      var tag = document.createElement("div"); tag.className = "qtc-tag";
-      tag.innerHTML = selectedQTC + '<button type="button" title="Clear">\u2715</button>';
-      tag.querySelector("button").addEventListener("click", function() {
-        selectedQTC = null; hid.value = ""; disp.innerHTML = "";
-        card.classList.remove("selected"); card.querySelector(".qtc-check").textContent = "";
+  var grid=document.getElementById("qtcGrid");
+  var disp=document.getElementById("qtcSelectedDisplay");
+  var wrap=document.getElementById("qtcPickerWrap");
+  var msg =document.getElementById("qtcShiftMsg");
+  var hid =document.getElementById("qtcName");
+  selectedQTC=null; hid.value=""; disp.innerHTML=""; grid.innerHTML="";
+  var list=QTC_DATA[shift];
+  if (!list){wrap.style.display="none"; msg.style.display="block"; return;}
+  msg.style.display="none"; wrap.style.display="block";
+  list.forEach(function(p){
+    var card=document.createElement("div"); card.className="qtc-card";
+    card.innerHTML='<div class="qtc-check"></div><div><div class="qtc-name">'+p.name+'</div>'+(p.role?'<div class="qtc-role">'+p.role+'</div>':'')+'</div>';
+    card.addEventListener("click",function(){
+      grid.querySelectorAll(".qtc-card.selected").forEach(function(c){c.classList.remove("selected"); c.querySelector(".qtc-check").textContent="";});
+      card.classList.add("selected"); card.querySelector(".qtc-check").textContent="\u2713";
+      selectedQTC=p.name; hid.value=selectedQTC;
+      disp.innerHTML="";
+      var tag=document.createElement("div"); tag.className="qtc-tag";
+      tag.innerHTML=selectedQTC+'<button type="button" title="Clear">\u2715</button>';
+      tag.querySelector("button").addEventListener("click",function(){
+        selectedQTC=null; hid.value=""; disp.innerHTML="";
+        card.classList.remove("selected"); card.querySelector(".qtc-check").textContent="";
       });
       disp.appendChild(tag);
     });
     grid.appendChild(card);
   });
 }
-document.getElementById("qtcShiftMsg").style.display = "block";
-document.getElementById("qtcSearch").addEventListener("input", function() {
-  var q = this.value.toLowerCase().trim();
-  document.querySelectorAll("#qtcGrid .qtc-card").forEach(function(card) {
-    var name = card.querySelector(".qtc-name").textContent.toLowerCase();
-    card.style.display = (q === "" || name.indexOf(q) > -1) ? "" : "none";
+document.getElementById("qtcShiftMsg").style.display="block";
+document.getElementById("qtcSearch").addEventListener("input",function(){
+  var q=this.value.toLowerCase().trim();
+  document.querySelectorAll("#qtcGrid .qtc-card").forEach(function(card){
+    var name=card.querySelector(".qtc-name").textContent.toLowerCase();
+    card.style.display=(q===""||name.indexOf(q)>-1)?"":"none";
   });
 });
 
 // ============================================================
 // TASK LINK — Auto-fill ID, Pass, Stage
 // ============================================================
-document.getElementById("taskLink").addEventListener("input", function() {
-  var url    = this.value.trim();
-  var PREFIX = "https://labeling.robot.car/#";
-  var hint   = document.getElementById("linkHint");
-  var idEl   = document.getElementById("taskId");
-  var icon   = document.getElementById("idIcon");
+document.getElementById("taskLink").addEventListener("input",function(){
+  var url=this.value.trim();
+  var PREFIX="https://labeling.robot.car/#";
+  var hint=document.getElementById("linkHint");
+  var idEl=document.getElementById("taskId");
+  var icon=document.getElementById("idIcon");
 
-  if (url.length > 0 && !url.startsWith(PREFIX)) {
-    this.style.borderColor = "var(--error)"; hint.style.color = "var(--error)";
+  if (url.length>0&&!url.startsWith(PREFIX)){
+    this.style.borderColor="var(--error)"; hint.style.color="var(--error)";
   } else {
-    this.style.borderColor = url.length > 0 ? "#1a8a5a" : ""; hint.style.color = "";
+    this.style.borderColor=url.length>0?"#1a8a5a":""; hint.style.color="";
   }
 
   updateStageField(url);
 
-  var idM = url.match(/\/id\/(\d+)/);
-  if (idM) {
-    linkTaskId = idM[1]; idEl.value = idM[1]; idEl.style.borderColor = "#1a8a5a";
-    icon.textContent = "\u2713"; icon.style.color = "var(--success)"; icon.style.opacity = "1";
-    document.getElementById("taskIdWarn").style.display = "none";
+  var idM=url.match(/\/id\/(\d+)/);
+  if (idM){
+    linkTaskId=idM[1]; idEl.value=idM[1]; idEl.style.borderColor="#1a8a5a";
+    icon.textContent="\u2713"; icon.style.color="var(--success)"; icon.style.opacity="1";
+    document.getElementById("taskIdWarn").style.display="none";
   } else {
-    linkTaskId = ""; idEl.value = ""; idEl.style.borderColor = "";
-    icon.textContent = "\u2014"; icon.style.color = ""; icon.style.opacity = ".4";
-    document.getElementById("taskIdWarn").style.display = "none";
+    linkTaskId=""; idEl.value=""; idEl.style.borderColor="";
+    icon.textContent="\u2014"; icon.style.color=""; icon.style.opacity=".4";
+    document.getElementById("taskIdWarn").style.display="none";
   }
 
-  var dM = url.match(/\/do\/([^\/]+)\//);
-  if (dM) {
-    var detectedPass = dM[1].toUpperCase().endsWith("QA") ? "QA" : "FP";
-    linkPassVal = detectedPass; passDD.setValue(detectedPass);
-    var pIcon = document.getElementById("passIcon");
-    pIcon.textContent = "\u2713"; pIcon.style.color = "var(--success)"; pIcon.style.opacity = "1";
-    document.getElementById("passWarn").style.display = "none";
+  var dM=url.match(/\/do\/([^\/]+)\//);
+  if (dM){
+    var detectedPass=dM[1].toUpperCase().endsWith("QA")?"QA":"FP";
+    linkPassVal=detectedPass; passDD.setValue(detectedPass);
+    var pIcon=document.getElementById("passIcon");
+    pIcon.textContent="\u2713"; pIcon.style.color="var(--success)"; pIcon.style.opacity="1";
+    document.getElementById("passWarn").style.display="none";
   } else {
-    linkPassVal = ""; passDD.reset();
-    document.getElementById("passWarn").style.display = "none";
-    var pIcon2 = document.getElementById("passIcon");
-    pIcon2.textContent = "\u2014"; pIcon2.style.color = ""; pIcon2.style.opacity = ".4";
+    linkPassVal=""; passDD.reset();
+    document.getElementById("passWarn").style.display="none";
+    var pIcon2=document.getElementById("passIcon");
+    pIcon2.textContent="\u2014"; pIcon2.style.color=""; pIcon2.style.opacity=".4";
   }
-
   updateProgress();
 });
 
 // ============================================================
-// SUBMIT — Zero Data Loss
+// SUBMIT — Simple: success → reset, fail → error state + keep form
 // ============================================================
-function sendToSheet(payload, onSuccess, onFail) {
+function doSubmit(payload, btn) {
+  btn.disabled    = true;
+  btn.textContent = "Submitting...";
+  btn.classList.remove("error-state");
+
   var controller = new AbortController();
-  var timeoutId  = setTimeout(function() { controller.abort(); }, 35000);
+  var timeoutId  = setTimeout(function(){ controller.abort(); }, 35000);
 
   fetch(SHEET_URL, {
     method:  "POST",
@@ -1835,97 +1757,41 @@ function sendToSheet(payload, onSuccess, onFail) {
     body:    JSON.stringify(payload),
     signal:  controller.signal
   })
-  .then(function(res) {
+  .then(function(res){
     clearTimeout(timeoutId);
-    // لو الـ response مش JSON هيفشل — نعالجه صح
-    return res.text().then(function(txt) {
+    return res.text().then(function(txt){
       try { return JSON.parse(txt); }
-      catch(e) { throw new Error("Non-JSON response: " + txt.substring(0,100)); }
+      catch(e){ throw new Error("Server error"); }
     });
   })
-  .then(function(json) {
-    if (json && json.status === "ok") { onSuccess(json); }
-    else { onFail(new Error(json.message || "Sheet error")); }
-  })
-  .catch(function(err) {
-    clearTimeout(timeoutId);
-    onFail(err);
-  });
-}
-
-function doSubmit(payload, btn) {
-  // ✅ 1. احفظ فوراً في localStorage قبل أي حاجة
-  localStorage.setItem(NK_PENDING, JSON.stringify(payload));
-  updatePendingBanner();
-
-  btn.disabled = true;
-  btn.textContent = "Submitting...";
-
-  sendToSheet(
-    payload,
-    // ✅ نجح
-    function(json) {
-      localStorage.removeItem(NK_PENDING);
-      updatePendingBanner();
-      btn.disabled = false;
-      btn.textContent = "\u2714\u00a0 Submit Task";
+  .then(function(json){
+    if (json && json.status === "ok") {
+      // ✅ Success
       saveTaskIdToHistory(payload.taskId);
       incrementCounter();
       var _sp = (payload.labelerName && payload.labelerName.toLowerCase() === "radwa hassan") && (payload.pcNo && payload.pcNo.toString() === "12");
-      toast(_sp ? "\uD83E\uDD89\uD83E\uDD89 Radwa Hassan \u2014 PC 12 \u2014 Saved successfully \uD83E\uDD89\uD83E\uDD89" : "\u2713 Saved to sheet successfully!", "ok");
-      resetForm();
-    },
-    // ❌ فشل — البيانات محفوظة في localStorage
-    function(err) {
-      btn.disabled = false;
+      toast(_sp ? "\uD83E\uDD89\uD83E\uDD89 Radwa Hassan \u2014 PC 12 \u2014 Saved successfully \uD83E\uDD89\uD83E\uDD89" : "\u2713 Saved successfully!", "ok");
+      btn.disabled    = false;
       btn.textContent = "\u2714\u00a0 Submit Task";
-      var msg = err && err.name === "AbortError"
-        ? "\u26a0 Timeout (35s) \u2014 data saved locally, will retry automatically"
-        : "\u26a0 Failed \u2014 data saved locally, will retry when connection is back";
-      toast(msg, "err");
+      resetForm();
+    } else {
+      throw new Error(json.message || "Server error");
     }
-  );
+  })
+  .catch(function(err){
+    clearTimeout(timeoutId);
+    // ❌ Error — keep form data, show error state
+    btn.disabled    = false;
+    btn.textContent = "\u26a0\ufe0f Error \u2014 Please Try Again";
+    btn.classList.add("error-state");
+    toast("\u26a0 Failed to submit \u2014 please try again", "err");
+    // Reset button appearance after 6 seconds
+    setTimeout(function(){
+      btn.textContent = "\u2714\u00a0 Submit Task";
+      btn.classList.remove("error-state");
+    }, 6000);
+  });
 }
-
-// ✅ 2. Retry تلقائي
-function retryPending() {
-  var raw = localStorage.getItem(NK_PENDING);
-  if (!raw) return;
-  var payload;
-  try { payload = JSON.parse(raw); }
-  catch(e) { localStorage.removeItem(NK_PENDING); updatePendingBanner(); return; }
-
-  toast("\u23f3 Retrying unsent data...", "ok");
-
-  sendToSheet(
-    payload,
-    function() {
-      localStorage.removeItem(NK_PENDING);
-      updatePendingBanner();
-      saveTaskIdToHistory(payload.taskId);
-      incrementCounter();
-      toast("\u2713 Unsent data saved successfully!", "ok");
-    },
-    function() {
-      // صامت — هيحاول تاني لما الإنترنت يرجع
-    }
-  );
-}
-
-// ✅ 3. sendBeacon — لو التاب اتقفل وفيه pending
-window.addEventListener("beforeunload", function() {
-  var pending = localStorage.getItem(NK_PENDING);
-  if (pending) {
-    try { navigator.sendBeacon(SHEET_URL, pending); } catch(e) {}
-  }
-});
-
-// ✅ 4. Retry عند فتح الصفحة والإنترنت يرجع
-window.addEventListener("load",   function() { retryPending(); });
-window.addEventListener("online", function() { retryPending(); });
-
-// Retry عند الضغط على زرار الـ banner
-document.getElementById("pbRetryBtn").addEventListener("click", function() { retryPending(); });
 
 // ============================================================
 // FORM SUBMIT HANDLER
@@ -1936,12 +1802,12 @@ document.getElementById("F").addEventListener("submit", function(e) {
 
   function chkDD(hidId, btnId) {
     if (!document.getElementById(hidId).value) {
-      document.getElementById(btnId).style.borderColor = "var(--error)";
-      document.getElementById(btnId).style.boxShadow  = "0 0 0 3px rgba(192,57,43,.1)";
-      err = true;
+      document.getElementById(btnId).style.borderColor="var(--error)";
+      document.getElementById(btnId).style.boxShadow="0 0 0 3px rgba(192,57,43,.1)";
+      err=true;
     } else {
-      document.getElementById(btnId).style.borderColor = "";
-      document.getElementById(btnId).style.boxShadow  = "";
+      document.getElementById(btnId).style.borderColor="";
+      document.getElementById(btnId).style.boxShadow="";
     }
   }
 
@@ -1954,56 +1820,52 @@ document.getElementById("F").addEventListener("submit", function(e) {
   chkDD("unit",   "unitBtn");
 
   // PC validation
-  var pcVal = document.getElementById("pcNo").value.trim();
-  if (!pcVal) { me("pcNo"); err = true; }
-  else if (/^qtc$/i.test(pcVal)) { document.getElementById("pcNo").value = "QTC"; ce("pcNo"); }
-  else if (/^sv$/i.test(pcVal))  { document.getElementById("pcNo").value = "SV";  ce("pcNo"); }
-  else if (/^\d+$/.test(pcVal)) {
-    var pcNum = parseInt(pcVal, 10);
-    if (pcNum < 1 || pcNum > 100) { me("pcNo"); err = true; toast("PC No. must be between 1 and 100", "err"); return; }
-    else { ce("pcNo"); }
-  } else { me("pcNo"); err = true; toast("PC No.: Enter a number (1-100), QTC or SV", "err"); return; }
+  var pcVal=document.getElementById("pcNo").value.trim();
+  if (!pcVal){me("pcNo"); err=true;}
+  else if (/^qtc$/i.test(pcVal)){document.getElementById("pcNo").value="QTC"; ce("pcNo");}
+  else if (/^sv$/i.test(pcVal)) {document.getElementById("pcNo").value="SV";  ce("pcNo");}
+  else if (/^\d+$/.test(pcVal)){
+    var pcNum=parseInt(pcVal,10);
+    if (pcNum<1||pcNum>100){me("pcNo"); err=true; toast("PC No. must be between 1 and 100","err"); return;}
+    else {ce("pcNo");}
+  } else {me("pcNo"); err=true; toast("PC No.: Enter a number (1-100), QTC or SV","err"); return;}
 
-  // Labeler Name
-  if (!lab) { me("labName"); err = true; }
-  else if (!/^[a-zA-Z\s]+$/.test(lab)) { me("labName"); err = true; toast("Labeler Name: English letters only", "err"); return; }
-  else { ce("labName"); }
+  if (!lab){me("labName"); err=true;}
+  else if (!/^[a-zA-Z\s]+$/.test(lab)){me("labName"); err=true; toast("Labeler Name: English letters only","err"); return;}
+  else {ce("labName");}
 
-  chkDD("qtcShiftSel", "qtcShiftBtn");
+  chkDD("qtcShiftSel","qtcShiftBtn");
 
-  // QTC Name
-  if (!document.getElementById("qtcName").value) {
-    var w = document.getElementById("qtcPickerWrap");
-    w.style.border = "1.5px solid var(--error)"; w.style.borderRadius = "8px"; w.style.padding = "8px";
-    err = true;
+  if (!document.getElementById("qtcName").value){
+    var w=document.getElementById("qtcPickerWrap");
+    w.style.border="1.5px solid var(--error)"; w.style.borderRadius="8px"; w.style.padding="8px";
+    err=true;
   } else {
-    var w2 = document.getElementById("qtcPickerWrap");
-    w2.style.border = ""; w2.style.padding = "";
+    var w2=document.getElementById("qtcPickerWrap");
+    w2.style.border=""; w2.style.padding="";
   }
 
-  // Yubikey
-  if (!yk) { me("yk"); err = true; }
+  if (!yk){me("yk"); err=true;}
   else {
-    var is6 = /^\d{6}$/.test(yk);
-    var isE = /^[a-zA-Z]{2}\d+@meti\.ai$/i.test(yk);
-    if (!is6 && !isE) { me("yk"); err = true; toast("Yubikey: لازم يكون 6 ارقام او me123456@meti.ai", "err"); return; }
-    else { ce("yk"); }
+    var is6=/^\d{6}$/.test(yk);
+    var isE=/^[a-zA-Z]{2}\d+@meti\.ai$/i.test(yk);
+    if (!is6&&!isE){me("yk"); err=true; toast("Yubikey: لازم يكون 6 ارقام او me123456@meti.ai","err"); return;}
+    else {ce("yk");}
   }
 
-  chkDD("modality", "modalityBtn");
-  chkDD("qName",    "queueBtn");
+  chkDD("modality","modalityBtn");
+  chkDD("qName",   "queueBtn");
 
-  if (!lnk.startsWith("https://labeling.robot.car/#")) { me("taskLink"); err = true; } else { ce("taskLink"); }
+  if (!lnk.startsWith("https://labeling.robot.car/#")){me("taskLink"); err=true;} else {ce("taskLink");}
 
-  var taskIdVal = document.getElementById("taskId").value.trim();
-  if (!taskIdVal) { me("taskId"); err = true; } else { ce("taskId"); }
+  var taskIdVal=document.getElementById("taskId").value.trim();
+  if (!taskIdVal){me("taskId"); err=true;} else {ce("taskId");}
 
-  chkDD("pass", "passBtn");
+  chkDD("pass","passBtn");
 
-  if (obj === "") { me("objCount"); err = true; toast("Please enter number of objects", "err"); return; }
-  if (err) { toast("Please fill all required fields", "err"); return; }
+  if (obj===""){me("objCount"); err=true; toast("Please enter number of objects","err"); return;}
+  if (err){toast("Please fill all required fields","err"); return;}
 
-  // Save to history
   saveN(lab);
   saveYK(yk);
   savePCH(document.getElementById("pcNo").value);
@@ -2013,51 +1875,51 @@ document.getElementById("F").addEventListener("submit", function(e) {
   localStorage.setItem(NK_LAST_PC,  document.getElementById("pcNo").value);
 
   var payload = {
-    timestamp:   document.getElementById("ts").value,
-    shift:       document.getElementById("shift").value,
-    unit:        document.getElementById("unit").value,
-    qtcName:     document.getElementById("qtcName").value,
+    timestamp:    document.getElementById("ts").value,
+    shift:        document.getElementById("shift").value,
+    unit:         document.getElementById("unit").value,
+    qtcName:      document.getElementById("qtcName").value,
     yubikeyEmail: yk,
-    labelerName: lab,
-    pcNo:        document.getElementById("pcNo").value,
-    modality:    document.getElementById("modality").value,
-    queueName:   document.getElementById("qName").value,
-    taskLink:    lnk,
-    taskId:      taskIdVal,
-    pass:        document.getElementById("pass").value,
-    stage:       document.getElementById("stageField").value,
-    action:      "Submit",
-    objectCount: obj,
-    reason:      "",
-    otherNotes:  "",
-    issuedFrames:""
+    labelerName:  lab,
+    pcNo:         document.getElementById("pcNo").value,
+    modality:     document.getElementById("modality").value,
+    queueName:    document.getElementById("qName").value,
+    taskLink:     lnk,
+    taskId:       taskIdVal,
+    pass:         document.getElementById("pass").value,
+    stage:        document.getElementById("stageField").value,
+    action:       "Submit",
+    objectCount:  obj,
+    reason:       "",
+    otherNotes:   "",
+    issuedFrames: ""
   };
 
-  var btn = document.getElementById("subBtn");
-  btn.disabled = true;
+  var btn=document.getElementById("subBtn");
+  btn.disabled=true;
 
   // Duplicate check
-  var dupEntry = checkDuplicateTaskId(payload.taskId);
-  if (dupEntry) {
-    var timeStr = formatTimeAgo(dupEntry.ts);
-    document.getElementById("dupIdBadge").textContent   = payload.taskId;
-    document.getElementById("dupSubmitLine").innerHTML  =
-      'انت بعت الـ <span dir="ltr">Task ID</span> ده مره بالفعل من ' +
-      '<span class="dup-time-badge">&#9201; ' + timeStr + '</span>';
-    var overlay = document.getElementById("dupOverlay");
+  var dupEntry=checkDuplicateTaskId(payload.taskId);
+  if (dupEntry){
+    var timeStr=formatTimeAgo(dupEntry.ts);
+    document.getElementById("dupIdBadge").textContent  = payload.taskId;
+    document.getElementById("dupSubmitLine").innerHTML =
+      'انت بعت الـ <span dir="ltr">Task ID</span> ده مره بالفعل من '+
+      '<span class="dup-time-badge">&#9201; '+timeStr+'</span>';
+    var overlay=document.getElementById("dupOverlay");
     overlay.classList.add("show");
-    document.getElementById("dupCancel").onclick = function() {
+    document.getElementById("dupCancel").onclick=function(){
       overlay.classList.remove("show");
-      btn.disabled = false; btn.textContent = "\u2714\u00a0 Submit Task";
+      btn.disabled=false; btn.textContent="\u2714\u00a0 Submit Task";
     };
-    document.getElementById("dupOk").onclick = function() {
+    document.getElementById("dupOk").onclick=function(){
       overlay.classList.remove("show");
-      doSubmit(payload, btn);
+      doSubmit(payload,btn);
     };
     return;
   }
 
-  doSubmit(payload, btn);
+  doSubmit(payload,btn);
 });
 
 // ============================================================
@@ -2066,127 +1928,125 @@ document.getElementById("F").addEventListener("submit", function(e) {
 function resetForm() {
   document.getElementById("F").reset();
   tick();
-  selectedQTC = null;
-  linkPassVal = "";
-  document.getElementById("qtcName").value = "";
-  document.getElementById("qtcGrid").innerHTML = "";
-  document.getElementById("qtcSelectedDisplay").innerHTML = "";
-  document.getElementById("qtcPickerWrap").style.display  = "none";
-  document.getElementById("qtcPickerWrap").style.border   = "";
-  document.getElementById("qtcPickerWrap").style.padding  = "";
-  document.getElementById("qtcShiftMsg").style.display    = "block";
-  linkTaskId = "";
-  document.getElementById("taskId").value         = "";
-  document.getElementById("taskId").style.borderColor   = "";
-  document.getElementById("taskIdWarn").style.display    = "none";
-  document.getElementById("taskIdNumWarn").style.display = "none";
-  document.getElementById("labNameWarn").style.display   = "none";
-  document.getElementById("passWarn").style.display      = "none";
-  var pIconR = document.getElementById("passIcon");
-  if (pIconR) { pIconR.textContent = "\u2014"; pIconR.style.color = ""; pIconR.style.opacity = ".4"; }
-  document.getElementById("idIcon").textContent      = "\u2014";
-  document.getElementById("idIcon").style.color      = "";
-  document.getElementById("linkHint").style.color    = "";
-  document.getElementById("taskLink").style.borderColor = "";
+  selectedQTC=null;
+  linkPassVal="";
+  document.getElementById("qtcName").value="";
+  document.getElementById("qtcGrid").innerHTML="";
+  document.getElementById("qtcSelectedDisplay").innerHTML="";
+  document.getElementById("qtcPickerWrap").style.display="none";
+  document.getElementById("qtcPickerWrap").style.border="";
+  document.getElementById("qtcPickerWrap").style.padding="";
+  document.getElementById("qtcShiftMsg").style.display="block";
+  linkTaskId="";
+  document.getElementById("taskId").value="";
+  document.getElementById("taskId").style.borderColor="";
+  document.getElementById("taskIdWarn").style.display="none";
+  document.getElementById("taskIdNumWarn").style.display="none";
+  document.getElementById("labNameWarn").style.display="none";
+  document.getElementById("passWarn").style.display="none";
+  var pIconR=document.getElementById("passIcon");
+  if (pIconR){pIconR.textContent="\u2014"; pIconR.style.color=""; pIconR.style.opacity=".4";}
+  document.getElementById("idIcon").textContent="\u2014";
+  document.getElementById("idIcon").style.color="";
+  document.getElementById("linkHint").style.color="";
+  document.getElementById("taskLink").style.borderColor="";
   updateStageField("");
 
-  var prevShift = document.getElementById("shift").value;
-  var prevUnit  = document.getElementById("unit").value;
+  var prevShift=document.getElementById("shift").value;
+  var prevUnit =document.getElementById("unit").value;
   shiftDD.reset(); unitDD.reset(); qtcShiftDD.reset();
   modalityDD.reset(); queueDD.reset(); passDD.reset();
   if (prevShift) shiftDD.setValue(prevShift);
   if (prevUnit)  unitDD.setValue(prevUnit);
 
-  // Restore last labeler & PC
-  var lastLab = localStorage.getItem(NK_LAST_LAB);
-  var lastPC  = localStorage.getItem(NK_LAST_PC);
-  if (lastLab) document.getElementById("labName").value = lastLab;
-  if (lastPC)  { document.getElementById("pcNo").value = lastPC; validatePC(lastPC); }
+  var lastLab=localStorage.getItem(NK_LAST_LAB);
+  var lastPC =localStorage.getItem(NK_LAST_PC);
+  if (lastLab) document.getElementById("labName").value=lastLab;
+  if (lastPC)  {document.getElementById("pcNo").value=lastPC; validatePC(lastPC);}
 
-  ["labName","yk","pcNo","taskLink","taskId","objCount"].forEach(function(id) {
-    var el = document.getElementById(id);
-    if (el) { el.classList.remove("err-field"); el.style.borderColor = ""; el.style.boxShadow = ""; }
+  ["labName","yk","pcNo","taskLink","taskId","objCount"].forEach(function(id){
+    var el=document.getElementById(id);
+    if (el){el.classList.remove("err-field"); el.style.borderColor=""; el.style.boxShadow="";}
   });
 
-  var ykHint = document.getElementById("ykHint");
-  if (ykHint) { ykHint.style.color = "var(--text-muted)"; ykHint.textContent = "6-digit code | or email format: me123456@meti.ai"; }
-  document.getElementById("yk").style.borderColor = "";
+  var ykHint=document.getElementById("ykHint");
+  if (ykHint){ykHint.style.color="var(--text-muted)"; ykHint.textContent="6-digit code | or email format: me123456@meti.ai";}
+  document.getElementById("yk").style.borderColor="";
   ykAcL.classList.remove("open");
   pcAcL.classList.remove("open");
 
-  var btn = document.getElementById("subBtn");
-  btn.textContent = "\u2714\u00a0 Submit Task";
-  btn.style.background = "var(--success)";
-  document.getElementById("progressBar").style.width = "0%";
+  var btn=document.getElementById("subBtn");
+  btn.textContent="\u2714\u00a0 Submit Task";
+  btn.classList.remove("error-state");
+  document.getElementById("progressBar").style.width="0%";
 }
 
 // ============================================================
 // STORAGE MANAGER
 // ============================================================
-document.getElementById("storageToggle").addEventListener("click", function() {
-  var body  = document.getElementById("storageBody");
-  var arrow = document.getElementById("storageArrow");
-  var open  = body.style.display === "none";
-  body.style.display = open ? "block" : "none";
-  arrow.classList.toggle("open", open);
+document.getElementById("storageToggle").addEventListener("click",function(){
+  var body =document.getElementById("storageBody");
+  var arrow=document.getElementById("storageArrow");
+  var open =body.style.display==="none";
+  body.style.display=open?"block":"none";
+  arrow.classList.toggle("open",open);
   if (open) renderStorageManager();
 });
 function renderStorageManager() {
-  renderStorageGroup("storageNames",  getN(),      delN,      function() { renderAC(labIn.value);   renderStorageManager(); });
-  renderStorageGroup("storageYK",     getYK(),     delYK,     function() { renderYKAC(ykIn.value);  renderStorageManager(); });
-  renderStorageGroup("storagePC",     getPCH(),    delPCH,    function() { renderPCAC(pcIn.value);  renderStorageManager(); });
-  renderStorageGroup("storageShift",  getShiftH(), delShiftH, function() { renderStorageManager(); });
-  renderStorageGroup("storageUnit",   getUnitH(),  delUnitH,  function() { renderStorageManager(); });
+  renderStorageGroup("storageNames", getN(),      delN,      function(){renderAC(labIn.value);  renderStorageManager();});
+  renderStorageGroup("storageYK",    getYK(),     delYK,     function(){renderYKAC(ykIn.value); renderStorageManager();});
+  renderStorageGroup("storagePC",    getPCH(),    delPCH,    function(){renderPCAC(pcIn.value); renderStorageManager();});
+  renderStorageGroup("storageShift", getShiftH(), delShiftH, function(){renderStorageManager();});
+  renderStorageGroup("storageUnit",  getUnitH(),  delUnitH,  function(){renderStorageManager();});
 }
 function renderStorageGroup(containerId, items, delFn, afterDel) {
-  var container = document.getElementById(containerId); container.innerHTML = "";
-  if (!items.length) {
-    var empty = document.createElement("div"); empty.className = "storage-empty"; empty.textContent = "No saved items";
+  var container=document.getElementById(containerId); container.innerHTML="";
+  if (!items.length){
+    var empty=document.createElement("div"); empty.className="storage-empty"; empty.textContent="No saved items";
     container.appendChild(empty); return;
   }
-  items.forEach(function(val) { container.appendChild(makeStorageItem(val, function() { delFn(val); afterDel(); })); });
+  items.forEach(function(val){container.appendChild(makeStorageItem(val,function(){delFn(val); afterDel();}));});
 }
 function makeStorageItem(label, onDel) {
-  var item = document.createElement("div"); item.className = "storage-item";
-  var txt  = document.createElement("span"); txt.textContent = label;
-  var btn  = document.createElement("button"); btn.className = "storage-item-del"; btn.type = "button"; btn.textContent = "\u2715"; btn.title = "Delete";
-  btn.addEventListener("click", onDel);
+  var item=document.createElement("div"); item.className="storage-item";
+  var txt =document.createElement("span"); txt.textContent=label;
+  var btn =document.createElement("button"); btn.className="storage-item-del"; btn.type="button"; btn.textContent="\u2715"; btn.title="Delete";
+  btn.addEventListener("click",onDel);
   item.appendChild(txt); item.appendChild(btn);
   return item;
 }
-document.getElementById("clearNamesBtn").addEventListener("click",  function() { localStorage.removeItem(NK);      renderAC(labIn.value);  renderStorageManager(); });
-document.getElementById("clearYKBtn").addEventListener("click",     function() { localStorage.removeItem(NK_YK);   renderYKAC(ykIn.value); renderStorageManager(); });
-document.getElementById("clearPCBtn").addEventListener("click",     function() { localStorage.removeItem(NK_PC_H); renderPCAC(pcIn.value); renderStorageManager(); });
-document.getElementById("clearShiftBtn").addEventListener("click",  function() { localStorage.removeItem(NK_SHIFT); renderStorageManager(); });
-document.getElementById("clearUnitBtn").addEventListener("click",   function() { localStorage.removeItem(NK_UNIT);  renderStorageManager(); });
+document.getElementById("clearNamesBtn").addEventListener("click", function(){localStorage.removeItem(NK);      renderAC(labIn.value);  renderStorageManager();});
+document.getElementById("clearYKBtn").addEventListener("click",    function(){localStorage.removeItem(NK_YK);   renderYKAC(ykIn.value); renderStorageManager();});
+document.getElementById("clearPCBtn").addEventListener("click",    function(){localStorage.removeItem(NK_PC_H); renderPCAC(pcIn.value); renderStorageManager();});
+document.getElementById("clearShiftBtn").addEventListener("click", function(){localStorage.removeItem(NK_SHIFT); renderStorageManager();});
+document.getElementById("clearUnitBtn").addEventListener("click",  function(){localStorage.removeItem(NK_UNIT);  renderStorageManager();});
 
 // Counter buttons
-document.getElementById("counterResetBtn").addEventListener("click", function() { resetCounter(); });
-document.getElementById("counterUndoBtn").addEventListener("click",  function() { undoCounter(); });
+document.getElementById("counterResetBtn").addEventListener("click",function(){resetCounter();});
+document.getElementById("counterUndoBtn").addEventListener("click", function(){undoCounter();});
 
 // Init
 renderCounter();
-updatePendingBanner();
 
 // Auto-fill last session
-(function() {
-  var lastShift = getShiftH()[0];
-  var lastUnit  = getUnitH()[0];
-  var lastLab   = localStorage.getItem(NK_LAST_LAB);
-  var lastPC    = localStorage.getItem(NK_LAST_PC);
-  if (lastShift) setTimeout(function(){ shiftDD.setValue(lastShift); }, 0);
-  if (lastUnit)  setTimeout(function(){ unitDD.setValue(lastUnit);   }, 0);
-  if (lastLab)   document.getElementById("labName").value = lastLab;
-  if (lastPC)    { document.getElementById("pcNo").value = lastPC; validatePC(lastPC); }
+(function(){
+  var lastShift=getShiftH()[0];
+  var lastUnit =getUnitH()[0];
+  var lastLab  =localStorage.getItem(NK_LAST_LAB);
+  var lastPC   =localStorage.getItem(NK_LAST_PC);
+  if (lastShift) setTimeout(function(){shiftDD.setValue(lastShift);},0);
+  if (lastUnit)  setTimeout(function(){unitDD.setValue(lastUnit);},  0);
+  if (lastLab)   document.getElementById("labName").value=lastLab;
+  if (lastPC)    {document.getElementById("pcNo").value=lastPC; validatePC(lastPC);}
 })();
 
 // Floating counter scroll behavior
-(function() {
-  var header   = document.querySelector("header.main-header");
-  var floating = document.getElementById("floatingCounter");
-  window.addEventListener("scroll", function() {
-    floating.classList.toggle("visible", header.getBoundingClientRect().bottom < 0);
-  }, { passive: true });
+(function(){
+  var header  =document.querySelector("header.main-header");
+  var floating=document.getElementById("floatingCounter");
+  window.addEventListener("scroll",function(){
+    floating.classList.toggle("visible",header.getBoundingClientRect().bottom<0);
+  },{passive:true});
 })();
 </script>
 </body>
