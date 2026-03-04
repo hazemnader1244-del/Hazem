@@ -1749,7 +1749,7 @@ function doSubmit(payload, btn) {
     saveTaskIdToHistory(payload.taskId);
     incrementCounter();
     var _sp = (payload.labelerName && payload.labelerName.toLowerCase() === "radwa hassan") && (payload.pcNo && payload.pcNo.toString() === "12");
-    toast(_sp ? "🦉🦉 Radwa Hassan — PC 12 — Saved successfully 🦉🦉" : "✓ Saved successfully!", "ok");
+    toast(_sp ? "🦉✓ Saved successfully🦉" : "✓ Saved successfully!", "ok");
     btn.disabled    = false;
     btn.textContent = "u2714u00a0 Submit Task";
     resetForm();
