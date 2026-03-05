@@ -1494,9 +1494,10 @@ function sendWithFetchKeepalive(payload, callback) {
     return res.json();
   })
   .then(function(json) {
+    console.log("[keepalive] response:", JSON.stringify(json));
     callback(json && json.status === "ok");
   })
-  .catch(function() { callback(false); });
+  .catch(function(err) { console.warn("[keepalive] failed:", err); callback(false); });
 }
 
 // 2. fetch بدون keepalive: fallback لو keepalive فشل
@@ -1512,9 +1513,10 @@ function sendWithFetch(payload, callback) {
     return res.json();
   })
   .then(function(json) {
+    console.log("[fetch] response:", JSON.stringify(json));
     callback(json && json.status === "ok");
   })
-  .catch(function() { callback(false); });
+  .catch(function(err) { console.warn("[fetch] failed:", err); callback(false); });
 }
 
 // 3. sendBeacon: صامت تماماً — بيبعت بس مش بيأكد وصول
