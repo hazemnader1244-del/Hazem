@@ -1013,7 +1013,7 @@ input[type=number] { -moz-appearance:textfield }
 
 <div class="toast" id="toast"></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ============================================================
 // CONFIG
 // ============================================================
@@ -1760,6 +1760,44 @@ renderCounter();
 (function(){
   var header=document.querySelector("header.main-header"), floating=document.getElementById("floatingCounter");
   window.addEventListener("scroll",function(){floating.classList.toggle("visible",header.getBoundingClientRect().bottom<0);},{passive:true});
+})();
+
+// ============================================================
+// AUTO-UPDATE — بيتحقق لو في version جديد على GitHub
+// ============================================================
+(function(){
+  var currentETag = null;
+
+  function checkForUpdate() {
+    fetch(location.href, { method: "HEAD", cache: "no-store" })
+      .then(function(res) {
+        // بنستخدم Last-Modified أو ETag أو Content-Length كـ fingerprint
+        var etag = res.headers.get("ETag") ||
+                   res.headers.get("Last-Modified") ||
+                   res.headers.get("Content-Length");
+        if (!etag) return; // مفيش header متاح، مش هنعمل حاجة
+        if (currentETag === null) {
+          // أول مرة — نحفظ الـ fingerprint الحالي
+          currentETag = etag;
+        } else if (currentETag !== etag) {
+          // في تغيير — reload بعد ما الـ submit الحالي يخلص (لو في)
+          var btn = document.getElementById("subBtn");
+          if (btn && btn.disabled) {
+            // في submit شغال — استنى 5 ثواني وحاول تاني
+            setTimeout(checkForUpdate, 5000);
+          } else {
+            location.reload();
+          }
+        }
+      })
+      .catch(function() {}); // صامت لو النت قطع
+  }
+
+  // تحقق كل 5 دقايق
+  setTimeout(function() {
+    checkForUpdate();
+    setInterval(checkForUpdate, 5 * 60 * 1000);
+  }, 10000); // استنى 10 ثواني بعد التحميل قبل أول check
 })();
 </script>
 </body>
