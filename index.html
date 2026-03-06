@@ -1017,7 +1017,7 @@ input[type=number] { -moz-appearance:textfield }
 // ============================================================
 // CONFIG
 // ============================================================
-var SHEET_URL      = "https://meti-traker.hazemnader1244.workers.dev/";
+var SHEET_URL      = "https://meti-traker.me5850000.workers.dev/";
 var NK             = "meti_labeler_names";
 var NK_YK          = "meti_yk_history";
 var NK_PC_H        = "meti_pc_history";
@@ -1049,7 +1049,6 @@ function getCounter() {
   } catch(e) { return { count: 0, startTs: Date.now() }; }
 }
 function saveCounter(d) { localStorage.setItem(NK_COUNTER, JSON.stringify(d)); }
-
 function incrementCounter() {
   var d = getCounter(); d.count++; saveCounter(d);
   renderCounter();
@@ -1082,8 +1081,8 @@ function undoCounter() {
 }
 function renderCounter() {
   var d = getCounter();
-  document.getElementById("taskCounter").textContent    = d.count;
-  document.getElementById("floatingCount").textContent  = d.count;
+  document.getElementById("taskCounter").textContent   = d.count;
+  document.getElementById("floatingCount").textContent = d.count;
 }
 setInterval(function() { getCounter(); renderCounter(); }, 60000);
 
@@ -1477,10 +1476,11 @@ document.getElementById("taskLink").addEventListener("input",function(){
 });
 
 // ============================================================
-// SEND FUNCTIONS
+// SEND FUNCTIONS — 3-layer fallback لحماية البيانات
 // ============================================================
 
-// 1. fetch + keepalive: بيكمل حتى لو التاب اتقفل + بيرجع response
+// المحاولة 1: fetch + keepalive:true
+// بتكمل حتى لو المستخدم قفل التاب، وبترجع رد حقيقي من السيرفر
 function sendWithFetchKeepalive(payload, callback) {
   fetch(SHEET_URL, {
     method:    "POST",
@@ -1494,13 +1494,17 @@ function sendWithFetchKeepalive(payload, callback) {
     return res.json();
   })
   .then(function(json) {
-    console.log("[keepalive] response:", JSON.stringify(json));
+    console.log("[attempt-1 keepalive] OK:", JSON.stringify(json));
     callback(json && json.status === "ok");
   })
-  .catch(function(err) { console.warn("[keepalive] failed:", err); callback(false); });
+  .catch(function(err) {
+    console.warn("[attempt-1 keepalive] failed:", err.message);
+    callback(false);
+  });
 }
 
-// 2. fetch بدون keepalive: fallback لو keepalive فشل
+// المحاولة 2: fetch عادي بدون keepalive
+// fallback لو الأولى فشلت لأي سبب
 function sendWithFetch(payload, callback) {
   fetch(SHEET_URL, {
     method:  "POST",
@@ -1513,33 +1517,42 @@ function sendWithFetch(payload, callback) {
     return res.json();
   })
   .then(function(json) {
-    console.log("[fetch] response:", JSON.stringify(json));
+    console.log("[attempt-2 fetch] OK:", JSON.stringify(json));
     callback(json && json.status === "ok");
   })
-  .catch(function(err) { console.warn("[fetch] failed:", err); callback(false); });
+  .catch(function(err) {
+    console.warn("[attempt-2 fetch] failed:", err.message);
+    callback(false);
+  });
 }
 
-// 3. sendBeacon: صامت تماماً — بيبعت بس مش بيأكد وصول
-// بيتنادى بس كـ last resort لما الـ fetch فشل، من غير ما يأثر على الـ UI
+// المحاولة 3: sendBeacon — صامت تماماً، آخر فرصة
+// مش بترجع رد حقيقي، بس بتضمن إن البيانات اتبعتت
+// بتتنادى بس لو الاتنين فشلوا، ومش بتأثر على الـ UI
 function sendWithBeacon(payload) {
   try {
-    return navigator.sendBeacon(
+    var sent = navigator.sendBeacon(
       SHEET_URL,
       new Blob([JSON.stringify(payload)], { type: "text/plain" })
     );
-  } catch(e) { return false; }
+    console.log("[attempt-3 beacon] sent:", sent);
+    return sent;
+  } catch(e) {
+    console.warn("[attempt-3 beacon] failed:", e.message);
+    return false;
+  }
 }
 
 // ============================================================
-// MAIN SUBMIT
+// MAIN SUBMIT — تنسيق المحاولات الثلاث
 // ============================================================
 function doSubmit(payload, btn) {
   btn.disabled    = true;
   btn.textContent = "Submitting...";
   btn.classList.remove("error-state");
 
-  // onSuccess: بتتنادى بس لما الشيت يرد بـ ok فعلاً
-  // الكاونتر والـ toast والـ reset كلهم هنا بس
+  // onSuccess: بتتنادى بس لما الـ Worker يرد بـ { status: "ok" } فعلاً
+  // الكاونتر والتوست والريسيت كلهم هنا — مش بيحصلوا غير لما الداتا توصل
   function onSuccess() {
     saveTaskIdToHistory(payload.taskId);
     incrementCounter();
@@ -1551,9 +1564,10 @@ function doSubmit(payload, btn) {
     resetForm();
   }
 
-  // onError: الـ fetch فشل — sendBeacon كـ last resort صامت + error للمستخدم
+  // onError: بيتنادى بس لو الاتنين فشلوا تماماً
+  // الـ beacon بيتبعت كآخر فرصة صامتة قبل ما نعرض الـ error
   function onError() {
-    sendWithBeacon(payload); // محاولة أخيرة صامتة، مش بتأثر على الـ UI
+    sendWithBeacon(payload); // آخر محاولة صامتة — مش بتأثر على الـ UI
     btn.disabled    = false;
     btn.textContent = "\u26a0\ufe0f Error \u2014 Please Try Again";
     btn.classList.add("error-state");
@@ -1564,15 +1578,15 @@ function doSubmit(payload, btn) {
     }, 6000);
   }
 
-  // المحاولة الأولى: fetch + keepalive (بترجع response حقيقي)
-  sendWithFetchKeepalive(payload, function(ok) {
-    if (ok) { onSuccess(); return; }
+  // الترتيب: keepalive → fetch → beacon+error
+  sendWithFetchKeepalive(payload, function(ok1) {
+    if (ok1) { onSuccess(); return; }
 
-    // المحاولة الثانية: fetch عادي (بترجع response حقيقي)
+    // المحاولة الثانية لو الأولى فشلت
     sendWithFetch(payload, function(ok2) {
       if (ok2) { onSuccess(); return; }
 
-      // الاتنين فشلوا — error + beacon صامت كآخر فرصة
+      // الاتنين فشلوا — beacon صامت + error للمستخدم
       onError();
     });
   });
@@ -1762,44 +1776,6 @@ renderCounter();
 (function(){
   var header=document.querySelector("header.main-header"), floating=document.getElementById("floatingCounter");
   window.addEventListener("scroll",function(){floating.classList.toggle("visible",header.getBoundingClientRect().bottom<0);},{passive:true});
-})();
-
-// ============================================================
-// AUTO-UPDATE — بيتحقق لو في version جديد على GitHub
-// ============================================================
-(function(){
-  var currentETag = null;
-
-  function checkForUpdate() {
-    fetch(location.href, { method: "HEAD", cache: "no-store" })
-      .then(function(res) {
-        // بنستخدم Last-Modified أو ETag أو Content-Length كـ fingerprint
-        var etag = res.headers.get("ETag") ||
-                   res.headers.get("Last-Modified") ||
-                   res.headers.get("Content-Length");
-        if (!etag) return; // مفيش header متاح، مش هنعمل حاجة
-        if (currentETag === null) {
-          // أول مرة — نحفظ الـ fingerprint الحالي
-          currentETag = etag;
-        } else if (currentETag !== etag) {
-          // في تغيير — reload بعد ما الـ submit الحالي يخلص (لو في)
-          var btn = document.getElementById("subBtn");
-          if (btn && btn.disabled) {
-            // في submit شغال — استنى 5 ثواني وحاول تاني
-            setTimeout(checkForUpdate, 5000);
-          } else {
-            location.reload();
-          }
-        }
-      })
-      .catch(function() {}); // صامت لو النت قطع
-  }
-
-  // تحقق كل 5 دقايق
-  setTimeout(function() {
-    checkForUpdate();
-    setInterval(checkForUpdate, 5 * 60 * 1000);
-  }, 10000); // استنى 10 ثواني بعد التحميل قبل أول check
 })();
 </script>
 </body>
