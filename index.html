@@ -929,7 +929,7 @@ input[type=number] { -moz-appearance:textfield }
           </div>
           <div class="full field">
             <label>How Many Objects? <span class="req">*</span></label>
-            <input type="number" id="objCount" placeholder="Enter number of objects" min="0" required>
+            <input type="number" id="objCount" placeholder="Enter number of objects" min="0" max="9999" required oninput="if(this.value.length>4)this.value=this.value.slice(0,4)">
           </div>
         </div>
 
@@ -1411,7 +1411,18 @@ function renderYKAC(q){
   });
   ykAcL.classList.add("open");
 }
-ykIn.addEventListener("input",function(){validateYK(this.value.trim());renderYKAC(this.value);});
+ykIn.addEventListener("input",function(){
+  var v = this.value;
+  if(/^\d+$/.test(v) && v.length > 6){
+    this.value = v.slice(0, 6);
+  }
+  // لو email format — حوّله lowercase فوراً
+  if(/@meti\.ai$/i.test(v)){
+    this.value = v.toLowerCase().trim();
+  }
+  validateYK(this.value.trim());
+  renderYKAC(this.value);
+});
 ykIn.addEventListener("focus",function(){renderYKAC(this.value);});
 ykIn.addEventListener("blur",function(){setTimeout(function(){ykAcL.classList.remove("open");ykActive=-1;},180);});
 ykIn.addEventListener("keydown",function(e){
@@ -1479,17 +1490,23 @@ document.getElementById("taskLink").addEventListener("input",function(){
 // SEND FUNCTIONS — 3-layer fallback لحماية البيانات
 // ============================================================
 
-// المحاولة 1: fetch + keepalive:true
-// بتكمل حتى لو المستخدم قفل التاب، وبترجع رد حقيقي من السيرفر
+var _activeBtn = null; // مرجع للزر عشان نحدّث النص أثناء الـ retry
+
+// المحاولة 1: fetch + keepalive:true + timeout 12s
 function sendWithFetchKeepalive(payload, callback) {
+  var controller = new AbortController();
+  var timer = setTimeout(function() { controller.abort(); }, 12000);
+
   fetch(SHEET_URL, {
     method:    "POST",
     mode:      "cors",
     headers:   { "Content-Type": "text/plain" },
     body:      JSON.stringify(payload),
-    keepalive: true
+    keepalive: true,
+    signal:    controller.signal
   })
   .then(function(res) {
+    clearTimeout(timer);
     if (!res.ok) throw new Error("HTTP " + res.status);
     return res.json();
   })
@@ -1498,37 +1515,59 @@ function sendWithFetchKeepalive(payload, callback) {
     callback(json && json.status === "ok");
   })
   .catch(function(err) {
+    clearTimeout(timer);
     console.warn("[attempt-1 keepalive] failed:", err.message);
     callback(false);
   });
 }
 
-// المحاولة 2: fetch عادي بدون keepalive
-// fallback لو الأولى فشلت لأي سبب
+// المحاولة 2: fetch عادي — بيحاول 3 مرات مع انتظار 2s → 4s → 8s
 function sendWithFetch(payload, callback) {
-  fetch(SHEET_URL, {
-    method:  "POST",
-    mode:    "cors",
-    headers: { "Content-Type": "text/plain" },
-    body:    JSON.stringify(payload)
-  })
-  .then(function(res) {
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-  })
-  .then(function(json) {
-    console.log("[attempt-2 fetch] OK:", JSON.stringify(json));
-    callback(json && json.status === "ok");
-  })
-  .catch(function(err) {
-    console.warn("[attempt-2 fetch] failed:", err.message);
-    callback(false);
-  });
+  var attempts    = 0;
+  var maxAttempts = 3;
+  var delays      = [2000, 4000, 8000];
+
+  function tryOnce() {
+    attempts++;
+    console.log("[attempt-2 fetch] try #" + attempts);
+
+    var controller = new AbortController();
+    var timer = setTimeout(function() { controller.abort(); }, 10000);
+
+    fetch(SHEET_URL, {
+      method:  "POST",
+      mode:    "cors",
+      headers: { "Content-Type": "text/plain" },
+      body:    JSON.stringify(payload),
+      signal:  controller.signal
+    })
+    .then(function(res) {
+      clearTimeout(timer);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    })
+    .then(function(json) {
+      console.log("[attempt-2 fetch] OK on try #" + attempts);
+      callback(json && json.status === "ok");
+    })
+    .catch(function(err) {
+      clearTimeout(timer);
+      console.warn("[attempt-2 fetch] try #" + attempts + " failed:", err.message);
+      if (attempts < maxAttempts) {
+        console.log("[attempt-2 fetch] retrying in " + delays[attempts-1] + "ms...");
+        if (_activeBtn) _activeBtn.textContent = "\u27f3 Retrying... (" + (attempts + 1) + "/3)";
+        setTimeout(tryOnce, delays[attempts - 1]);
+      } else {
+        console.warn("[attempt-2 fetch] all retries exhausted");
+        callback(false);
+      }
+    });
+  }
+
+  tryOnce();
 }
 
 // المحاولة 3: sendBeacon — صامت تماماً، آخر فرصة
-// مش بترجع رد حقيقي، بس بتضمن إن البيانات اتبعتت
-// بتتنادى بس لو الاتنين فشلوا، ومش بتأثر على الـ UI
 function sendWithBeacon(payload) {
   try {
     var sent = navigator.sendBeacon(
@@ -1547,12 +1586,11 @@ function sendWithBeacon(payload) {
 // MAIN SUBMIT — تنسيق المحاولات الثلاث
 // ============================================================
 function doSubmit(payload, btn) {
+  _activeBtn      = btn;
   btn.disabled    = true;
   btn.textContent = "Submitting...";
   btn.classList.remove("error-state");
 
-  // onSuccess: بتتنادى بس لما الـ Worker يرد بـ { status: "ok" } فعلاً
-  // الكاونتر والتوست والريسيت كلهم هنا — مش بيحصلوا غير لما الداتا توصل
   function onSuccess() {
     saveTaskIdToHistory(payload.taskId);
     incrementCounter();
@@ -1564,10 +1602,8 @@ function doSubmit(payload, btn) {
     resetForm();
   }
 
-  // onError: بيتنادى بس لو الاتنين فشلوا تماماً
-  // الـ beacon بيتبعت كآخر فرصة صامتة قبل ما نعرض الـ error
   function onError() {
-    sendWithBeacon(payload); // آخر محاولة صامتة — مش بتأثر على الـ UI
+    sendWithBeacon(payload);
     btn.disabled    = false;
     btn.textContent = "\u26a0\ufe0f Error \u2014 Please Try Again";
     btn.classList.add("error-state");
@@ -1578,15 +1614,11 @@ function doSubmit(payload, btn) {
     }, 6000);
   }
 
-  // الترتيب: keepalive → fetch → beacon+error
+  // الترتيب: keepalive → fetch (3 retries) → beacon+error
   sendWithFetchKeepalive(payload, function(ok1) {
     if (ok1) { onSuccess(); return; }
-
-    // المحاولة الثانية لو الأولى فشلت
     sendWithFetch(payload, function(ok2) {
       if (ok2) { onSuccess(); return; }
-
-      // الاتنين فشلوا — beacon صامت + error للمستخدم
       onError();
     });
   });
