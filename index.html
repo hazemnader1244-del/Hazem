@@ -1043,7 +1043,6 @@ function supabaseInsert(record, callback) {
 
   // حوّل أسماء الـ fields من camelCase لـ snake_case بما يوافق الـ table
   var row = {
-    timestamp:     record.timestamp,
     shift:         record.shift,
     unit:          record.unit,
     qtc_name:      record.qtcName,
@@ -1056,11 +1055,7 @@ function supabaseInsert(record, callback) {
     task_id:       record.taskId,
     pass:          record.pass,
     stage:         record.stage,
-    action:        record.action,
-    object_count:  record.objectCount,
-    reason:        record.reason     || "",
-    other_notes:   record.otherNotes || "",
-    issued_frames: record.issuedFrames || ""
+    object_count:  record.objectCount
   };
 
   function tryOnce() {
@@ -1642,7 +1637,6 @@ document.getElementById("F").addEventListener("submit",function(e){
   localStorage.setItem(NK_LAST_PC,  document.getElementById("pcNo").value);
 
   var payload={
-    timestamp:    document.getElementById("ts").value,
     shift:        document.getElementById("shift").value,
     unit:         document.getElementById("unit").value,
     qtcName:      document.getElementById("qtcName").value,
@@ -1655,11 +1649,7 @@ document.getElementById("F").addEventListener("submit",function(e){
     taskId:       taskIdVal,
     pass:         document.getElementById("pass").value,
     stage:        document.getElementById("stageField").value,
-    action:       "Submit",
-    objectCount:  obj,
-    reason:       "",
-    otherNotes:   "",
-    issuedFrames: ""
+    objectCount:  obj
   };
 
   var btn=document.getElementById("subBtn");
