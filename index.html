@@ -1043,6 +1043,7 @@ function supabaseInsert(record, callback) {
 
   // حوّل أسماء الـ fields من camelCase لـ snake_case بما يوافق الـ table
   var row = {
+    timestamp:     record.timestamp,
     shift:         record.shift,
     unit:          record.unit,
     qtc_name:      record.qtcName,
@@ -1637,6 +1638,7 @@ document.getElementById("F").addEventListener("submit",function(e){
   localStorage.setItem(NK_LAST_PC,  document.getElementById("pcNo").value);
 
   var payload={
+    timestamp:    document.getElementById("ts").value,
     shift:        document.getElementById("shift").value,
     unit:         document.getElementById("unit").value,
     qtcName:      document.getElementById("qtcName").value,
