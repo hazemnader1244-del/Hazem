@@ -1015,18 +1015,102 @@ input[type=number] { -moz-appearance:textfield }
 
 <script>
 // ============================================================
-// CONFIG
+// SUPABASE CONFIG
 // ============================================================
-var SHEET_URL      = "https://meti-traker.me5850000.workers.dev/";
-var NK             = "meti_labeler_names";
-var NK_YK          = "meti_yk_history";
-var NK_PC_H        = "meti_pc_history";
-var NK_SHIFT       = "meti_shift_history";
-var NK_UNIT        = "meti_unit_history";
-var NK_TASK_IDS    = "meti_task_ids_history";
-var NK_LAST_LAB    = "meti_last_labeler";
-var NK_LAST_PC     = "meti_last_pc";
+var SUPABASE_URL    = "https://befbftwxcjlhvfauoycy.supabase.co";
+var SUPABASE_KEY    = "sb_publishable_zy2rjG8Rfa9xgXOo2lgF5g_8xjelq1s";
+var SUPABASE_TABLE  = "meti_tasks";
+var SUPABASE_ENDPOINT = SUPABASE_URL + "/rest/v1/" + SUPABASE_TABLE;
+
+// localStorage keys (للـ autocomplete فقط — لا علاقة بالـ DB)
+var NK          = "meti_labeler_names";
+var NK_YK       = "meti_yk_history";
+var NK_PC_H     = "meti_pc_history";
+var NK_SHIFT    = "meti_shift_history";
+var NK_UNIT     = "meti_unit_history";
+var NK_TASK_IDS = "meti_task_ids_history";
+var NK_LAST_LAB = "meti_last_labeler";
+var NK_LAST_PC  = "meti_last_pc";
 var TASK_WINDOW_MS = 8 * 60 * 60 * 1000;
+
+// ============================================================
+// SUPABASE INSERT — مع retry تلقائي
+// ============================================================
+function supabaseInsert(record, callback) {
+  var attempts = 0;
+  var maxAttempts = 3;
+  var delays = [2000, 4000, 8000];
+
+  // حوّل أسماء الـ fields من camelCase لـ snake_case بما يوافق الـ table
+  var row = {
+    timestamp:     record.timestamp,
+    shift:         record.shift,
+    unit:          record.unit,
+    qtc_name:      record.qtcName,
+    yubikey_email: record.yubikeyEmail,
+    labeler_name:  record.labelerName,
+    pc_no:         record.pcNo,
+    modality:      record.modality,
+    queue_name:    record.queueName,
+    task_link:     record.taskLink,
+    task_id:       record.taskId,
+    pass:          record.pass,
+    stage:         record.stage,
+    action:        record.action,
+    object_count:  record.objectCount,
+    reason:        record.reason     || "",
+    other_notes:   record.otherNotes || "",
+    issued_frames: record.issuedFrames || ""
+  };
+
+  function tryOnce() {
+    attempts++;
+    console.log("[Supabase] insert attempt #" + attempts);
+
+    var controller = new AbortController();
+    var timer = setTimeout(function() { controller.abort(); }, 12000);
+
+    fetch(SUPABASE_ENDPOINT, {
+      method: "POST",
+      headers: {
+        "Content-Type":  "application/json",
+        "apikey":        SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY,
+        "Prefer":        "return=minimal"
+      },
+      body:   JSON.stringify(row),
+      signal: controller.signal
+    })
+    .then(function(res) {
+      clearTimeout(timer);
+      // Supabase بيرجع 201 Created لو نجح
+      if (res.status === 201 || res.ok) {
+        console.log("[Supabase] insert OK on attempt #" + attempts);
+        callback(true);
+      } else {
+        // اطبع الـ error عشان نعرف المشكلة
+        return res.text().then(function(txt) {
+          console.warn("[Supabase] HTTP " + res.status + ":", txt);
+          throw new Error("HTTP " + res.status);
+        });
+      }
+    })
+    .catch(function(err) {
+      clearTimeout(timer);
+      console.warn("[Supabase] attempt #" + attempts + " failed:", err.message);
+      if (attempts < maxAttempts) {
+        console.log("[Supabase] retrying in " + delays[attempts - 1] + "ms...");
+        if (_activeBtn) _activeBtn.textContent = "\u27f3 Retrying... (" + (attempts + 1) + "/3)";
+        setTimeout(tryOnce, delays[attempts - 1]);
+      } else {
+        console.warn("[Supabase] all attempts exhausted");
+        callback(false);
+      }
+    });
+  }
+
+  tryOnce();
+}
 
 // ============================================================
 // TASK COUNTER
@@ -1087,7 +1171,7 @@ function renderCounter() {
 setInterval(function() { getCounter(); renderCounter(); }, 60000);
 
 // ============================================================
-// TASK ID HISTORY
+// TASK ID HISTORY (localStorage — للـ duplicate check السريع)
 // ============================================================
 function getRecentTaskIds() {
   try { return JSON.parse(localStorage.getItem(NK_TASK_IDS)) || []; } catch(e) { return []; }
@@ -1177,6 +1261,7 @@ var QTC_DATA = {
 // HELPERS
 // ============================================================
 var selectedQTC = null, linkTaskId = "", linkPassVal = "";
+var _activeBtn  = null;
 
 function toast(msg, type) {
   var t = document.getElementById("toast");
@@ -1412,14 +1497,9 @@ function renderYKAC(q){
   ykAcL.classList.add("open");
 }
 ykIn.addEventListener("input",function(){
-  var v = this.value;
-  if(/^\d+$/.test(v) && v.length > 6){
-    this.value = v.slice(0, 6);
-  }
-  // لو email format — حوّله lowercase فوراً
-  if(/@meti\.ai$/i.test(v)){
-    this.value = v.toLowerCase().trim();
-  }
+  var v=this.value;
+  if(/^\d+$/.test(v)&&v.length>6){this.value=v.slice(0,6);}
+  if(/@meti\.ai$/i.test(v)){this.value=v.toLowerCase().trim();}
   validateYK(this.value.trim());
   renderYKAC(this.value);
 });
@@ -1487,145 +1567,41 @@ document.getElementById("taskLink").addEventListener("input",function(){
 });
 
 // ============================================================
-// SEND FUNCTIONS — 3-layer fallback لحماية البيانات
-// ============================================================
-
-var _activeBtn = null; // مرجع للزر عشان نحدّث النص أثناء الـ retry
-
-// المحاولة 1: fetch + keepalive:true + timeout 12s
-function sendWithFetchKeepalive(payload, callback) {
-  var controller = new AbortController();
-  var timer = setTimeout(function() { controller.abort(); }, 12000);
-
-  fetch(SHEET_URL, {
-    method:    "POST",
-    mode:      "cors",
-    headers:   { "Content-Type": "text/plain" },
-    body:      JSON.stringify(payload),
-    keepalive: true,
-    signal:    controller.signal
-  })
-  .then(function(res) {
-    clearTimeout(timer);
-    if (!res.ok) throw new Error("HTTP " + res.status);
-    return res.json();
-  })
-  .then(function(json) {
-    console.log("[attempt-1 keepalive] OK:", JSON.stringify(json));
-    callback(json && json.status === "ok");
-  })
-  .catch(function(err) {
-    clearTimeout(timer);
-    console.warn("[attempt-1 keepalive] failed:", err.message);
-    callback(false);
-  });
-}
-
-// المحاولة 2: fetch عادي — بيحاول 3 مرات مع انتظار 2s → 4s → 8s
-function sendWithFetch(payload, callback) {
-  var attempts    = 0;
-  var maxAttempts = 3;
-  var delays      = [2000, 4000, 8000];
-
-  function tryOnce() {
-    attempts++;
-    console.log("[attempt-2 fetch] try #" + attempts);
-
-    var controller = new AbortController();
-    var timer = setTimeout(function() { controller.abort(); }, 10000);
-
-    fetch(SHEET_URL, {
-      method:  "POST",
-      mode:    "cors",
-      headers: { "Content-Type": "text/plain" },
-      body:    JSON.stringify(payload),
-      signal:  controller.signal
-    })
-    .then(function(res) {
-      clearTimeout(timer);
-      if (!res.ok) throw new Error("HTTP " + res.status);
-      return res.json();
-    })
-    .then(function(json) {
-      console.log("[attempt-2 fetch] OK on try #" + attempts);
-      callback(json && json.status === "ok");
-    })
-    .catch(function(err) {
-      clearTimeout(timer);
-      console.warn("[attempt-2 fetch] try #" + attempts + " failed:", err.message);
-      if (attempts < maxAttempts) {
-        console.log("[attempt-2 fetch] retrying in " + delays[attempts-1] + "ms...");
-        if (_activeBtn) _activeBtn.textContent = "\u27f3 Retrying... (" + (attempts + 1) + "/3)";
-        setTimeout(tryOnce, delays[attempts - 1]);
-      } else {
-        console.warn("[attempt-2 fetch] all retries exhausted");
-        callback(false);
-      }
-    });
-  }
-
-  tryOnce();
-}
-
-// المحاولة 3: sendBeacon — صامت تماماً، آخر فرصة
-function sendWithBeacon(payload) {
-  try {
-    var sent = navigator.sendBeacon(
-      SHEET_URL,
-      new Blob([JSON.stringify(payload)], { type: "text/plain" })
-    );
-    console.log("[attempt-3 beacon] sent:", sent);
-    return sent;
-  } catch(e) {
-    console.warn("[attempt-3 beacon] failed:", e.message);
-    return false;
-  }
-}
-
-// ============================================================
-// MAIN SUBMIT — تنسيق المحاولات الثلاث
+// MAIN SUBMIT HANDLER
 // ============================================================
 function doSubmit(payload, btn) {
   _activeBtn      = btn;
   btn.disabled    = true;
-  btn.textContent = "Submitting...";
+  btn.textContent = "Saving to Supabase...";
   btn.classList.remove("error-state");
 
-  function onSuccess() {
-    saveTaskIdToHistory(payload.taskId);
-    incrementCounter();
-    var _sp = (payload.labelerName && payload.labelerName.toLowerCase() === "radwa hassan")
-           && (payload.pcNo && payload.pcNo.toString() === "12");
-    toast(_sp ? "🦉\u2713 Saved successfully🦉" : "\u2714 Saved successfully!", "ok");
-    btn.disabled    = false;
-    btn.textContent = "\u2714\u00a0 Submit Task";
-    resetForm();
-  }
-
-  function onError() {
-    sendWithBeacon(payload);
-    btn.disabled    = false;
-    btn.textContent = "\u26a0\ufe0f Error \u2014 Please Try Again";
-    btn.classList.add("error-state");
-    toast("\u26a0 Failed to submit \u2014 please check your connection and try again", "err");
-    setTimeout(function() {
-      btn.textContent = "\u2714\u00a0 Submit Task";
-      btn.classList.remove("error-state");
-    }, 6000);
-  }
-
-  // الترتيب: keepalive → fetch (3 retries) → beacon+error
-  sendWithFetchKeepalive(payload, function(ok1) {
-    if (ok1) { onSuccess(); return; }
-    sendWithFetch(payload, function(ok2) {
-      if (ok2) { onSuccess(); return; }
-      onError();
-    });
+  supabaseInsert(payload, function(ok) {
+    if (ok) {
+      // نجح — حدّث الـ state
+      saveTaskIdToHistory(payload.taskId);
+      incrementCounter();
+      var _sp = (payload.labelerName && payload.labelerName.toLowerCase() === "radwa hassan")
+             && (payload.pcNo && payload.pcNo.toString() === "12");
+      toast(_sp ? "🦉✓ Saved successfully 🦉" : "✔ Saved successfully!", "ok");
+      btn.disabled    = false;
+      btn.textContent = "✔\u00a0 Submit Task";
+      resetForm();
+    } else {
+      // فشل — أظهر error
+      btn.disabled    = false;
+      btn.textContent = "⚠️ Error — Please Try Again";
+      btn.classList.add("error-state");
+      toast("⚠ Failed to save — please check your connection and try again", "err");
+      setTimeout(function() {
+        btn.textContent = "✔\u00a0 Submit Task";
+        btn.classList.remove("error-state");
+      }, 6000);
+    }
   });
 }
 
 // ============================================================
-// FORM SUBMIT HANDLER
+// FORM SUBMIT
 // ============================================================
 document.getElementById("F").addEventListener("submit",function(e){
   e.preventDefault();
@@ -1693,10 +1669,10 @@ document.getElementById("F").addEventListener("submit",function(e){
   if(dupEntry){
     var timeStr=formatTimeAgo(dupEntry.ts);
     document.getElementById("dupIdBadge").textContent=payload.taskId;
-    document.getElementById("dupSubmitLine").innerHTML='انت بعت الـ <span dir="ltr">Task ID</span> ده مره بالفعل من <span class="dup-time-badge">&#9201; '+timeStr+'</span>';
+    document.getElementById("dupSubmitLine").innerHTML='انت بعت الـ <span dir="ltr">Task ID</span> ده مره بالفعل من <span class="dup-time-badge">⏱ '+timeStr+'</span>';
     var overlay=document.getElementById("dupOverlay");
     overlay.classList.add("show");
-    document.getElementById("dupCancel").onclick=function(){overlay.classList.remove("show");btn.disabled=false;btn.textContent="\u2714\u00a0 Submit Task";};
+    document.getElementById("dupCancel").onclick=function(){overlay.classList.remove("show");btn.disabled=false;btn.textContent="✔\u00a0 Submit Task";};
     document.getElementById("dupOk").onclick=function(){overlay.classList.remove("show");doSubmit(payload,btn);};
     return;
   }
@@ -1730,16 +1706,13 @@ function resetForm(){
   document.getElementById("linkHint").style.color="";
   document.getElementById("taskLink").style.borderColor="";
   updateStageField("");
-
   var prevShift=document.getElementById("shift").value, prevUnit=document.getElementById("unit").value;
   shiftDD.reset();unitDD.reset();qtcShiftDD.reset();modalityDD.reset();queueDD.reset();passDD.reset();
   if(prevShift)shiftDD.setValue(prevShift);
   if(prevUnit)unitDD.setValue(prevUnit);
-
   var lastLab=localStorage.getItem(NK_LAST_LAB), lastPC=localStorage.getItem(NK_LAST_PC);
   if(lastLab)document.getElementById("labName").value=lastLab;
   if(lastPC){document.getElementById("pcNo").value=lastPC;validatePC(lastPC);}
-
   ["labName","yk","pcNo","taskLink","taskId","objCount"].forEach(function(id){
     var el=document.getElementById(id);
     if(el){el.classList.remove("err-field");el.style.borderColor="";el.style.boxShadow="";}
@@ -1749,7 +1722,7 @@ function resetForm(){
   document.getElementById("yk").style.borderColor="";
   ykAcL.classList.remove("open"); pcAcL.classList.remove("open");
   var btn=document.getElementById("subBtn");
-  btn.textContent="\u2714\u00a0 Submit Task";
+  btn.textContent="✔\u00a0 Submit Task";
   btn.classList.remove("error-state");
   document.getElementById("progressBar").style.width="0%";
 }
@@ -1787,7 +1760,6 @@ document.getElementById("clearYKBtn").addEventListener("click",   function(){loc
 document.getElementById("clearPCBtn").addEventListener("click",   function(){localStorage.removeItem(NK_PC_H);renderPCAC(pcIn.value); renderStorageManager();});
 document.getElementById("clearShiftBtn").addEventListener("click",function(){localStorage.removeItem(NK_SHIFT);renderStorageManager();});
 document.getElementById("clearUnitBtn").addEventListener("click", function(){localStorage.removeItem(NK_UNIT); renderStorageManager();});
-
 document.getElementById("counterResetBtn").addEventListener("click",function(){resetCounter();});
 document.getElementById("counterUndoBtn").addEventListener("click", function(){undoCounter();});
 
@@ -1795,7 +1767,6 @@ document.getElementById("counterUndoBtn").addEventListener("click", function(){u
 // INIT
 // ============================================================
 renderCounter();
-
 (function(){
   var lastShift=getShiftH()[0], lastUnit=getUnitH()[0];
   var lastLab=localStorage.getItem(NK_LAST_LAB), lastPC=localStorage.getItem(NK_LAST_PC);
@@ -1804,7 +1775,6 @@ renderCounter();
   if(lastLab)   document.getElementById("labName").value=lastLab;
   if(lastPC)    {document.getElementById("pcNo").value=lastPC; validatePC(lastPC);}
 })();
-
 (function(){
   var header=document.querySelector("header.main-header"), floating=document.getElementById("floatingCounter");
   window.addEventListener("scroll",function(){floating.classList.toggle("visible",header.getBoundingClientRect().bottom<0);},{passive:true});
