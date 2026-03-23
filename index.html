@@ -1182,7 +1182,7 @@ input[type=number] { -moz-appearance:textfield }
 <div id="dbDupOverlay">
   <div class="db-dup-dialog">
     <div class="db-dup-icon">🚫</div>
-    <div class="db-dup-title">التاسك ده اتبعت قبل كده!</div>
+    <div class="db-dup-title" style="direction:rtl;">الـ Task ده اتبعت مره بالفعل موجود في الـ Data Base</div>
     <div class="db-dup-subtitle" style="direction:rtl;">الـ System لقى نفس الـ Task موجود في قاعدة البيانات</div>
 
     <div class="db-dup-info-box">
@@ -1731,7 +1731,7 @@ function sendWithBeacon(row) {
 /* ===== DB Duplicate Dialog ===== */
 function showDbDupDialog(taskId, savedTs, onClose) {
   var d = new Date(savedTs);
-  var dateStr = d.toLocaleDateString("ar-EG", { timeZone: "Africa/Cairo", weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  var dateStr = d.toLocaleDateString("en-US", { timeZone: "Africa/Cairo", weekday: "long", year: "numeric", month: "long", day: "numeric" });
   var timeStr = d.toLocaleTimeString("en-US", { timeZone: "Africa/Cairo", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: true });
   document.getElementById("dbDupTaskId").textContent = taskId;
   document.getElementById("dbDupDate").textContent   = dateStr;
