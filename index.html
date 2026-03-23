@@ -53,9 +53,17 @@ body::before {
   z-index: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
   min-height: 100vh;
 }
+
+/* ===== STICKY WRAPPER ===== */
+.sticky-wrap {
+  position: sticky;
+  top: 0;
+  z-index: 1001;
+  width: 100%;
+}
+/* ===== TOPBAR ===== */
 .topbar {
   width: 100%;
   background: var(--primary-dark);
@@ -84,6 +92,8 @@ body::before {
   color: rgba(255,255,255,.55);
   font-weight: 500; letter-spacing: .5px;
 }
+
+/* ===== MAIN HEADER ===== */
 header.main-header {
   width: 100%;
   background: var(--primary);
@@ -250,12 +260,21 @@ header.main-header {
   50%      { transform: translateX(5px) scale(1.15); }
 }
 
-.progress-bar-track { width:100%; height:4px; background:rgba(28,69,135,.12) }
+/* ===== STICKY PROGRESS BAR ===== */
+.progress-bar-track {
+  width: 100%;
+  height: 4px;
+  background: rgba(28,69,135,.12);
+  position: relative;
+  overflow: visible;
+}
 .progress-bar-fill { height:100%; width:0%; background:var(--accent); transition:width .4s ease }
+
 .content {
   width: 100%;
   max-width: 1480px;
   padding: 36px 32px 24px;
+  align-self: center;
 }
 .card {
   background: var(--surface);
@@ -575,7 +594,7 @@ input[type=number] { -moz-appearance:textfield }
 #linkHint { color:var(--text-muted) }
 .storage-panel {
   width:100%; max-width:1480px;
-  margin:16px 0 40px;
+  margin:16px auto 40px;
   border:1px solid var(--border);
   border-radius:var(--radius-lg);
   background:var(--surface);
@@ -620,7 +639,6 @@ input[type=number] { -moz-appearance:textfield }
   cursor:pointer; font-size:.8rem; padding:0; line-height:1; transition:color .15s;
 }
 .storage-item-del:hover { color:var(--error) }
-.storage-empty { font-size:.78rem; color:var(--text-muted); font-style:italic; padding:4px 0 }
 #dupOverlay {
   display: none; position: fixed; inset: 0; z-index: 999999;
   align-items: center; justify-content: center;
@@ -680,39 +698,45 @@ input[type=number] { -moz-appearance:textfield }
   to   { box-shadow: 0 0 0 4px rgba(252,211,77,.0); }
 }
 #floatingCounter {
-  position: fixed;
-  top: -80px;
-  right: 28px;
-  z-index: 9000;
-  background: linear-gradient(135deg, #1c4587 0%, #132f6b 100%);
-  border: 1px solid rgba(255,255,255,.18);
+  display: flex;
+  position: absolute;
+  right: 20px;
+  top: 8px;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 16px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  border: 1.5px solid rgba(255,255,255,.15);
   border-radius: 50px;
-  padding: 6px 18px 6px 14px;
-  display: flex; flex-direction: row; align-items: center; gap: 8px;
-  box-shadow: 0 4px 20px rgba(28,69,135,.4), inset 0 1px 0 rgba(255,255,255,.12);
-  transition: top .38s cubic-bezier(.34,1.2,.64,1);
+  box-shadow: 0 2px 10px rgba(28,69,135,.12);
   cursor: default;
+  z-index: 100;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
 }
-#floatingCounter.visible { top: 14px; }
+#floatingCounter.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
 #floatingCounter .fc-label {
-  font-size: .52rem; font-weight: 700;
-  color: rgba(255,255,255,.45);
-  letter-spacing: 2px; text-transform: uppercase; white-space: nowrap;
+  font-size: .6rem; font-weight: 700;
+  color: rgba(255,255,255,.6);
+  letter-spacing: 1.5px; text-transform: uppercase; white-space: nowrap;
 }
 #floatingCounter .fc-count {
   font-family: 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.6rem; font-weight: 800;
-  color: #fff; line-height: 1; letter-spacing: -1px;
+  font-size: 1.2rem; font-weight: 800;
+  color: #fff; line-height: 1; letter-spacing: -.5px;
   transition: transform .18s cubic-bezier(.34,1.56,.64,1), color .18s;
-  text-shadow: 0 2px 8px rgba(0,0,0,.25);
 }
-#floatingCounter .fc-count.bump { transform: scale(1.3); color: #6ee7b7; }
+#floatingCounter .fc-count.bump { transform: scale(1.25); color: #6ee7b7; }
 @media(max-width:640px) {
   .g2, .g3 { grid-template-columns:1fr }
   .card-section { padding:22px 18px }
   .qtc-grid { grid-template-columns:1fr 1fr }
   .content { padding:24px 16px 16px }
-  .storage-panel { margin:12px 0 32px }
+  .storage-panel { margin:12px auto 32px }
   .dup-dialog { padding:26px 20px 20px }
   .dup-divider { margin:0 -20px 18px }
   .stage-wrap { display:none }
@@ -723,6 +747,7 @@ input[type=number] { -moz-appearance:textfield }
 <body>
 <div class="page">
 
+  <div class="sticky-wrap">
   <div class="topbar">
     <div class="topbar-brand">
       <div class="topbar-logo-box">
@@ -764,7 +789,7 @@ input[type=number] { -moz-appearance:textfield }
         <span class="btn-icon">📋</span>
         <span class="btn-text-wrap">
           <span class="btn-main-text">Form Filling Instructions</span>
-          <span class="btn-sub-text">Read Me First</span>
+          <span class="btn-sub-text">Read Me First 🦉</span>
         </span>
         <span class="btn-arrow-big">➜</span>
       </a>
@@ -773,12 +798,12 @@ input[type=number] { -moz-appearance:textfield }
 
   <div class="progress-bar-track">
     <div class="progress-bar-fill" id="progressBar"></div>
+    <div id="floatingCounter">
+      <span class="fc-label">Tasks Done</span>
+      <span class="fc-count" id="floatingCount">0</span>
+    </div>
   </div>
-
-  <div id="floatingCounter">
-    <span class="fc-label">Tasks</span>
-    <span class="fc-count" id="floatingCount">0</span>
-  </div>
+  </div><!-- end sticky-wrap -->
 
   <div class="content">
     <div class="card">
@@ -952,6 +977,7 @@ input[type=number] { -moz-appearance:textfield }
                   <li data-v="sc3_full_scene_highway_mapless_filtered_3d_lanes">sc3_full_scene_highway_mapless_<span class="hl">filtered</span>_3d_lanes</li>
                   <li data-v="sc3_full_scene_highway_lanes_first_lidar_labeling">sc3_full_scene_highway_lanes_<span class="hl">first_lidar</span>_labeling</li>
                   <li data-v="sc3_full_scene_highway_lidar_only_labeling">sc3_full_scene_highway_<span class="hl">lidar_only</span>_labeling</li>
+                  <li data-v="sc3_full_scene_lane_lidar_parallel_labeling">sc3_full_scene_lane_lidar_<span class="hl">parallel</span>_labeling</li>
                 </ul>
                 <input type="hidden" id="qName">
               </div>
@@ -964,7 +990,7 @@ input[type=number] { -moz-appearance:textfield }
             <input type="text" id="taskLink" placeholder="https://labeling.robot.car/#..." required autocomplete="off">
             <div id="linkNoStageWarn" class="warn-box" dir="rtl" style="display:none">
               <span class="warn-icon">&#9888;</span>
-              <span>فين الـ <span dir="ltr">Stage</span> اللي في الـ <span dir="ltr">Link</span> (<span dir="ltr">SellIvandar / SellMsl / SellRelabeling</span>)</span>
+              <span>فين الـ <span dir="ltr">Stage</span> اللي في الـ <span dir="ltr">Link</span> (<span dir="ltr">SellIvandar / SellMsl/ SellMapping / SellRelabeling</span>)</span>
             </div>
             <div id="linkNoIdWarn" class="warn-box" dir="rtl" style="display:none">
               <span class="warn-icon">&#9888;</span>
@@ -1094,7 +1120,7 @@ input[type=number] { -moz-appearance:textfield }
   </div>
 </div>
 
-<!-- Duplicate Dialog — Ok button removed -->
+<!-- Duplicate Dialog -->
 <div id="dupOverlay">
   <div class="dup-dialog">
     <div class="dup-icon">⚠️</div>
@@ -1140,7 +1166,7 @@ var NK_TASK_IDS = "meti_task_ids_history";
 var NK_LAST_LAB = "meti_last_labeler";
 var NK_LAST_PC  = "meti_last_pc";
 var NK_QTC_SHIFT = "meti_qtc_shift_last";
-var TASK_WINDOW_MS = 8 * 60 * 60 * 1000;
+var TASK_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 function buildRow(b) {
   return {
@@ -1265,7 +1291,7 @@ var QTC_DATA = {
     {name:"Hazem Nader (N)",role:"QT"},{name:"Mohamed Sayed (N)",role:"QT"},
     {name:"Abdelrahman Adel (N)",role:"QT"},{name:"Mohamed Kamal (N)",role:"QT"},
     {name:"Mahmoud Khaled (N)",role:""},{name:"Ibrahim Mohamed Ibrahim (N)",role:""},
-    {name:"Kerolos Emil Shawky (N)",role:""},{name:"Hussien Ali (N)",role:""},
+    {name:"Kerolos Emil Shawky (N)",role:""},{name:"Hussein Ali (N)",role:""},
     {name:"Ahmed Nagy (N)",role:""},{name:"Ali Suliman (N)",role:""},
     {name:"Mostafa Helal (N)",role:""},{name:"Osama Ashraf (N)",role:""},
     {name:"Marwan Mohamed (N)",role:""},{name:"Tony Emad (N)",role:""},
@@ -1281,7 +1307,7 @@ var QTC_DATA = {
   "Over Night": [
     {name:"Omar Sharawy (ON)",role:"QT"},{name:"Mohamed Fahmy (ON)",role:"QT"},
     {name:"Hesham Nasser (ON)",role:"QT"},{name:"Ahmed Selim (ON)",role:"QT"},
-    {name:"Islam Yasser (ON)",role:"QT"},{name:"El Noby (ON)",role:""},
+    {name:"Islam Yasser (ON)",role:"QT"},{name:"Mahmoud Abdallah El Noby (ON)",role:""},
     {name:"Ahmed Nagia (ON)",role:""},{name:"Abdalla Barbary (ON)",role:""},
     {name:"Mohamed Zakaria (ON)",role:""},{name:"Samer Neseim (ON)",role:""},
     {name:"Mohamed Ibrahim (ON)",role:""},{name:"Eyad Mohamed (ON)",role:""},
@@ -1289,7 +1315,7 @@ var QTC_DATA = {
     {name:"Mohamed Nasr (ON)",role:""},{name:"Shreif Hossam (ON)",role:""},
     {name:"Mohamed Emam (ON)",role:""},{name:"Mahmoud Khaled Hussien (ON)",role:""},
     {name:"Karim Gaber (ON)",role:""},{name:"Yousef Fathy (ON)",role:""},
-    {name:"Yousef Mohamed Saad (ON)",role:""},{name:"Ahmed Alsheikh (ON)",role:""},
+    {name:"Yousef Mohamed Saad (ON)",role:""},{name:"Ahmed Samir Mohamed (ON)",role:""},
     {name:"Mohamed Fathy (ON)",role:""},{name:"Yousef Ashraf Shaaban (ON)",role:""},
     {name:"Ahmed Sobhy (ON)",role:""},{name:"Hossam Taha (ON)",role:""},
     {name:"Shehab Alaa (ON)",role:""},{name:"Yousef Saber (ON)",role:""},
@@ -1333,6 +1359,7 @@ function detectStage(url) {
   if(u.indexOf("SELLIVANDAR")>-1)    return "Lidar Stage";
   if(u.indexOf("SELLMSL")>-1)        return "Image Stage";
   if(u.indexOf("SELLRELABELING")>-1) return "Relabeling Stage";
+  if(u.indexOf("SELLMAPPING")>-1)    return "Sellmapping Stage";
   return "";
 }
 function updateStageField(url) {
@@ -1638,6 +1665,7 @@ function sendWithBeacon(row) {
 function doSubmit(payload, btn) {
   _activeBtn = btn; btn.disabled=true; btn.textContent="Submitting..."; btn.classList.remove("error-state");
   var row = buildRow(payload);
+
   function onSuccess() {
     saveTaskIdToHistory(payload.taskId); incrementCounter();
     var _sp=(payload.labelerName&&payload.labelerName.toLowerCase()==="radwa hassan")&&(payload.pcNo&&payload.pcNo.toString()==="12");
@@ -1649,7 +1677,44 @@ function doSubmit(payload, btn) {
     toast("\u26a0 Failed to submit \u2014 please check your connection and try again","err");
     setTimeout(function(){ btn.textContent="\u2714\u00a0 Submit Task"; btn.classList.remove("error-state"); },6000);
   }
-  sendWithFetchKeepalive(row,function(ok1){ if(ok1){onSuccess();return;} sendWithFetch(row,function(ok2){ if(ok2){onSuccess();return;} onError(); }); });
+
+  // ✅ قبل الـ retry — بنتشيك إن نفس الـ task_id + yubikey + labeler_name موجودين مع بعض
+  // لو موجودين = الـ attempt 1 اتحفظ فعلاً وبس الـ response ضاع → نعامله كـ success
+  // لو مش موجودين = مش اتحفظ → نبعته من جديد
+  function retryWithCheck() {
+    var checkUrl = SUPABASE_URL + "/rest/v1/meti_tasks"
+      + "?task_id=eq."       + encodeURIComponent(payload.taskId)
+      + "&yubikey_email=eq." + encodeURIComponent(payload.yubikeyEmail)
+      + "&labeler_name=eq."  + encodeURIComponent(payload.labelerName)
+      + "&select=task_id&limit=1";
+
+    fetch(checkUrl, {
+      headers: {
+        "apikey":        SUPABASE_KEY,
+        "Authorization": "Bearer " + SUPABASE_KEY
+      }
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data && data.length > 0) {
+        // موجود بالفعل = retry duplicate → treat as success بدون إعادة إرسال
+        console.log("[retry-check] already saved — skipping duplicate send");
+        onSuccess();
+      } else {
+        // مش موجود → ابعته فعلاً
+        sendWithFetch(row, function(ok2) { if(ok2) onSuccess(); else onError(); });
+      }
+    })
+    .catch(function() {
+      // مش قادر يتشيك (نت منقطع تماماً) → ابعت عادي وخلي الـ DB يهندل الـ conflict
+      sendWithFetch(row, function(ok2) { if(ok2) onSuccess(); else onError(); });
+    });
+  }
+
+  sendWithFetchKeepalive(row, function(ok1) {
+    if(ok1) { onSuccess(); return; }
+    retryWithCheck(); // ← بدل sendWithFetch مباشرة
+  });
 }
 
 document.getElementById("F").addEventListener("submit",function(e){
@@ -1825,9 +1890,17 @@ renderCounter();
   if(lastLab)      document.getElementById("labName").value = lastLab;
   if(lastPC)       { document.getElementById("pcNo").value = lastPC; validatePC(lastPC); }
 })();
+
+/* ===== FLOATING COUNTER ===== */
 (function(){
-  var header=document.querySelector("header.main-header"), floating=document.getElementById("floatingCounter");
-  window.addEventListener("scroll",function(){floating.classList.toggle("visible",header.getBoundingClientRect().bottom<0);},{passive:true});
+  var floating = document.getElementById("floatingCounter");
+  var secCounter = document.querySelector(".sec-counter");
+  var stickyWrap = document.querySelector(".sticky-wrap");
+  window.addEventListener("scroll", function(){
+    var rect = secCounter.getBoundingClientRect();
+    var stickyH = stickyWrap.offsetHeight;
+    floating.classList.toggle("visible", rect.bottom < stickyH);
+  }, {passive: true});
 })();
 </script>
 </body>
