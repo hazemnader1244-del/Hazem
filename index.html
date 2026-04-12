@@ -1455,15 +1455,14 @@ function detectModalityFromStageQueue(stageSegment, queueName) {
  // ── Lane Line ──
 if (s === "SELLMSL" && q === "sc3_full_scene_highway_mapless_filtered_3d_lanes") return "Lane Line";
 if (s.startsWith("SELLIVANDAR") && q === "sc3_full_scene_highway_lanes_first_lidar_labeling") return "Lane Line";
-if (s.startsWith("SELLIVANDAR") && q === "sc3_full_scene_highway_lidar_only_labeling") return "Lane Line";
 if (s.startsWith("SELLRELABELING") && q === "sc3_full_scene_highway_lidar_only_labeling") return "Lane Line";
 if (s.startsWith("SELLMAPPING")) return "Lane Line";
 
 // ── Lidar ──
 if (s.startsWith("SELLIVANDAR") && q === "sc3_full_scene_highway_mapless_filtered_3d_lanes") return "Lidar";
+if (s.startsWith("SELLIVANDAR") && q === "sc3_full_scene_highway_lidar_only_labeling") return "Lidar";
 if (s.startsWith("SELLIVANDAR") && q === "sc3_full_scene_lane_lidar_parallel_labeling") return "Lidar";
 if (s.startsWith("SELLRELABELING") && q === "sc3_full_scene_highway_lanes_first_lidar_labeling") return "Lidar";
-
   return ""; // manual — no auto-fill
 }
 
