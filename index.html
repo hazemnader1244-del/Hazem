@@ -1738,7 +1738,7 @@ if(idMatch && url.length > idMatch[1].length){ this.value=idMatch[1]; url=idMatc
     // 2) Get raw stage segment from URL (e.g. "SellMSL", "SellIvandar")
     var doSegArr = url.match(/\/do\/([^\/]+)\//i);
     var stageSegRaw = doSegArr ? doSegArr[1] : "";
-
+stageSegRaw = stageSegRaw.replace(/(?:QA|FP)$/i, "");
     // 3) Detect + set Modality
     var autoMod = detectModalityFromStageQueue(stageSegRaw, extractedQ);
     if (autoMod) {
