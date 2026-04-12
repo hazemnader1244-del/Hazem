@@ -1704,8 +1704,8 @@ document.getElementById("taskLink").addEventListener("input",function(){
   var url=this.value.trim(), PREFIX="https://labeling.robot.car/#";
 
   // Trim trailing garbage after the expected URL pattern
-  var idMatch=url.match(/(https:\/\/labeling\.robot\.car\/#\/tasks\/do\/[^\/]+\/id\/\d+)/);
-  if(idMatch && url.length > idMatch[1].length){ this.value=idMatch[1]; url=idMatch[1]; }
+  var idMatch=url.match(/(https:\/\/labeling\.robot\.car\/#\/tasks\/do\/[^\/]+\/id\/\d+(\/queue\/[^\/\?#&]+)?)/);
+if(idMatch && url.length > idMatch[1].length){ this.value=idMatch[1]; url=idMatch[1]; }
 
   var hint=document.getElementById("linkHint"),idEl=document.getElementById("taskId"),icon=document.getElementById("idIcon");
   var hasStage=detectStage(url)!=="", hasId=!!url.match(/\/id\/\d+/);
