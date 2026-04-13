@@ -1239,6 +1239,7 @@ var NK_SHIFT    = "meti_shift_history";
 var NK_UNIT     = "meti_unit_history";
 var NK_LAST_LAB = "meti_last_labeler";
 var NK_LAST_PC  = "meti_last_pc";
+var NK_LAST_YK  = "meti_last_yk";
 var NK_QTC_SHIFT = "meti_qtc_shift_last";
 
 function buildRow(b) {
@@ -1367,6 +1368,8 @@ var QTC_DATA = {
     {name:"Mohamed Emam (ON)",role:""},{name:"Mahmoud Khaled Hussien (ON)",role:""},
     {name:"Karim Gaber (ON)",role:""},{name:"Yousef Fathy (ON)",role:""},
     {name:"Yousef Mohamed Saad (ON)",role:""},{name:"Ahmed Samir Mohamed (ON)",role:""},
+    {name:"Mostafa Mahmoud Mohamed (ON)",role:""},{name:"Mahmoud Ahmed Salama (ON)",role:""},
+    {name:"Medhat Mohamed Fathy (ON)",role:""},
     {name:"Mohamed Fathy (ON)",role:""},{name:"Amr khaled sobhy (ON)",role:""},
     {name:"Ahmed Sobhy (ON)",role:""},{name:"Hossam Taha (ON)",role:""},
     {name:"Shehab Alaa (ON)",role:""},{name:"Yousef Saber (ON)",role:""},
@@ -1950,6 +1953,7 @@ document.getElementById("F").addEventListener("submit",function(e){
   saveUnitH(document.getElementById("unit").value);
   localStorage.setItem(NK_LAST_LAB, lab);
   localStorage.setItem(NK_LAST_PC, document.getElementById("pcNo").value);
+  localStorage.setItem(NK_LAST_YK, yk);
   var payload={
     timestamp:document.getElementById("ts").value, shift:document.getElementById("shift").value,
     unit:document.getElementById("unit").value, qtcName:document.getElementById("qtcName").value,
@@ -2011,6 +2015,8 @@ function resetForm(){
   var lastLab=localStorage.getItem(NK_LAST_LAB), lastPC=localStorage.getItem(NK_LAST_PC);
   if(lastLab) document.getElementById("labName").value=lastLab;
   if(lastPC)  { document.getElementById("pcNo").value=lastPC; validatePC(lastPC); }
+  var lastYK=localStorage.getItem(NK_LAST_YK);
+if(lastYK){ document.getElementById("yk").value=lastYK; validateYK(lastYK); }
   ["labName","yk","pcNo"].forEach(function(id){
     var el=document.getElementById(id);
     if(el){el.classList.remove("err-field");el.style.borderColor="";el.style.boxShadow="";}
@@ -2069,6 +2075,8 @@ renderCounter();
   if(lastQtcShift) setTimeout(function(){ qtcShiftDD.setValue(lastQtcShift); buildQTCGrid(lastQtcShift); }, 0);
   if(lastLab)      document.getElementById("labName").value = lastLab;
   if(lastPC)       { document.getElementById("pcNo").value = lastPC; validatePC(lastPC); }
+  var lastYK = localStorage.getItem(NK_LAST_YK);
+if(lastYK) { document.getElementById("yk").value = lastYK; validateYK(lastYK); }
 })();
 
 (function(){
