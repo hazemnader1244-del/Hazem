@@ -1769,7 +1769,7 @@ function loadAllFormData(){
   if(!GAS_WEBAPP_URL || GAS_WEBAPP_URL.indexOf("AKfycb...") > -1) return; // لسه مفيش رابط متظبط
 
   // 2) في نفس الوقت، هات النسخة الأحدث من الشيت وحدث الشاشة والكاش
-  fetch(GAS_WEBAPP_URL + "?action=all")
+  fetch(GAS_WEBAPP_URL + "?action=all", { cache: "no-store" })
     .then(function(r){ return r.json(); })
     .then(function(data){
       applyFormData(data);
