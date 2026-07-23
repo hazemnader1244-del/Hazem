@@ -1780,6 +1780,38 @@ function loadAllFormData(){
 
 loadAllFormData();
 
+// ══════════════════════════════════════════════════════════════
+// SCROLL RESTORE — عشان أي Reload للصفحة ميرميش المستخدم لفوق،
+// بنحفظ مكان الـ Scroll أول بأول وبنرجعه تلقائيًا بعد التحميل
+// ══════════════════════════════════════════════════════════════
+if("scrollRestoration" in history) history.scrollRestoration = "manual";
+
+var NK_SCROLL_POS = "meti_scroll_pos_v1";
+
+(function(){
+  var saveTimer = null;
+  function saveScroll(){
+    try { sessionStorage.setItem(NK_SCROLL_POS, String(window.scrollY)); } catch(e) {}
+  }
+  window.addEventListener("scroll", function(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveScroll, 150);
+  }, { passive: true });
+  window.addEventListener("beforeunload", saveScroll);
+
+  function restoreScroll(){
+    var y = 0;
+    try { y = parseInt(sessionStorage.getItem(NK_SCROLL_POS), 10) || 0; } catch(e) {}
+    if(y > 0) window.scrollTo(0, y);
+  }
+  // بنحاول نرجع المكان أكتر من مرة عشان لو المحتوى (Queue/QTC) اتحمل
+  // بعدين وغيّر طول الصفحة، الـ Scroll يفضل صح
+  restoreScroll();
+  setTimeout(restoreScroll, 100);
+  setTimeout(restoreScroll, 400);
+  window.addEventListener("load", restoreScroll);
+})();
+
 // كل 20 ثانية، هات آخر نسخة من الشيت تلقائيًا من غير ما المستخدم يعمل Refresh
 // (لو التاب فاتح من قبل التعديل، هيتحدث لوحده)
 setInterval(loadAllFormData, 20000);
