@@ -1710,13 +1710,15 @@ function buildQueueLiHTML(name, highlight){
 // الـ event listeners بتاعته عشان ميحصلش تكرار (duplicate binding)
 function renderQueueList(items){
   var wrap = document.getElementById("queueFieldWrap");
-  if(!wrap || !items || !items.length) return;
+  if(!wrap || !items) return;
 
   var prevValue = document.getElementById("qName") ? document.getElementById("qName").value : "";
 
-  var liHtml = items.map(function(it){
-    return '<li data-v="' + escapeHtml(it.name) + '">' + buildQueueLiHTML(it.name, it.highlight) + '</li>';
-  }).join("");
+  var liHtml = items.length
+    ? items.map(function(it){
+        return '<li data-v="' + escapeHtml(it.name) + '">' + buildQueueLiHTML(it.name, it.highlight) + '</li>';
+      }).join("")
+    : '<li class="sdl-empty" style="opacity:.6;pointer-events:none;">No queues available</li>';
 
   wrap.innerHTML =
     '<div class="sdb" id="queueBtn" tabindex="0">' +
@@ -1750,7 +1752,7 @@ function applyFormData(data){
     var currentShift = document.getElementById("qtcShiftSel") ? document.getElementById("qtcShiftSel").value : "";
     if(currentShift) buildQTCGrid(currentShift);
   }
-  if(Array.isArray(data.queue) && data.queue.length){
+  if(Array.isArray(data.queue)){
     renderQueueList(data.queue);
   }
 }
