@@ -1731,32 +1731,52 @@ function renderQueueList(items){
   if(prevValue) queueDD.setValue(prevValue);
 }
 
-function loadQueueListData(){
-  if(!GAS_WEBAPP_URL || GAS_WEBAPP_URL.indexOf("AKfycb...") > -1) return; // لسه مفيش رابط متظبط
-  fetch(GAS_WEBAPP_URL + "?action=queue")
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      if(Array.isArray(data) && data.length) renderQueueList(data);
-    })
-    .catch(function(){ /* لو فشل، هيفضل شغال بالقائمة الافتراضية اللي جوه الـ HTML */ });
+// ══════════════════════════════════════════════════════════════
+// FAST LOAD — بدل نداءين منفصلين لـ Apps Script (queue + qtc)، بقى
+// نداء واحد بس (action=all) وده بيقلل زمن الانتظار تقريبًا للنص.
+// كمان بنحفظ آخر بيانات نزلت في localStorage، وأول ما الفورم يفتح
+// بنعرضها فورًا (من غير أي "Loading names...") وفي نفس الوقت بنجيب
+// النسخة الجديدة من الشيت في الخلفية وبنحدث الشاشة لو فيه فرق.
+// النتيجة: التحضير بيبان فورًا من أول فتح تاني للفورم، وأي تعديل
+// في شيت الـ QTC أو الـ Queue List بيوصل خلال ثواني قليلة تلقائيًا.
+// ══════════════════════════════════════════════════════════════
+var NK_FORM_DATA_CACHE = "meti_form_data_cache_v1";
+
+function applyFormData(data){
+  if(!data || typeof data !== "object") return;
+  if(data.qtc && typeof data.qtc === "object"){
+    QTC_DATA = data.qtc;
+    qtcDataLoaded = true;
+    var currentShift = document.getElementById("qtcShiftSel") ? document.getElementById("qtcShiftSel").value : "";
+    if(currentShift) buildQTCGrid(currentShift);
+  }
+  if(Array.isArray(data.queue) && data.queue.length){
+    renderQueueList(data.queue);
+  }
 }
 
-function loadQTCData(){
+function loadAllFormData(){
+  // 1) اعرض فورًا آخر نسخة محفوظة (لو موجودة) عشان الفورم يبان جاهز على طول
+  try {
+    var cachedRaw = localStorage.getItem(NK_FORM_DATA_CACHE);
+    if(cachedRaw){
+      applyFormData(JSON.parse(cachedRaw));
+    }
+  } catch(e) { /* تجاهل أي خطأ في الكاش */ }
+
   if(!GAS_WEBAPP_URL || GAS_WEBAPP_URL.indexOf("AKfycb...") > -1) return; // لسه مفيش رابط متظبط
-  fetch(GAS_WEBAPP_URL + "?action=qtc")
+
+  // 2) في نفس الوقت، هات النسخة الأحدث من الشيت وحدث الشاشة والكاش
+  fetch(GAS_WEBAPP_URL + "?action=all")
     .then(function(r){ return r.json(); })
     .then(function(data){
-      if(data && typeof data === "object"){
-        QTC_DATA = data;
-        var currentShift = document.getElementById("qtcShiftSel") ? document.getElementById("qtcShiftSel").value : "";
-        if(currentShift) buildQTCGrid(currentShift);
-      }
+      applyFormData(data);
+      try { localStorage.setItem(NK_FORM_DATA_CACHE, JSON.stringify(data)); } catch(e) {}
     })
-    .catch(function(){ /* لو فشل، هيفضل QTC_DATA فاضي لحد ما الاتصال يرجع */ });
+    .catch(function(){ /* لو فشل، هيفضل شغال بالكاش أو بالقائمة الافتراضية جوه الـ HTML */ });
 }
 
-loadQueueListData();
-loadQTCData();
+loadAllFormData();
 
 // ══════════════════════════════════════════════════════════════
 // Task Link listener — with auto-fill for Queue + Modality
