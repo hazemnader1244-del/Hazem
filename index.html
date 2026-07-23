@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>METI Tasks Tracker</title>
@@ -511,6 +515,10 @@ input[type=number] { -moz-appearance:textfield }
   border-top:1px solid var(--border);
   padding:16px;
   border-radius:0 0 var(--radius-lg) var(--radius-lg);
+  position: sticky;
+  bottom: 0;
+  z-index: 1000;
+  box-shadow: 0 -4px 16px rgba(28,69,135,.10);
 }
 .subbtn {
   width:100%; padding:15px;
@@ -936,7 +944,7 @@ input[type=number] { -moz-appearance:textfield }
             <div class="field">
               <label>PC No. <span class="req">*</span></label>
               <div class="acw">
-                <input type="text" id="pcNo" placeholder="e.g. 7, 30, QTC or SV" required autocomplete="off" data-lpignore="true" inputmode="text">
+                <input type="text" id="pcNo" placeholder="e.g. 7, 30, QTC, SL, SV or Buffer"equired autocomplete="off" data-lpignore="true" inputmode="text">
                 <ul class="acl" id="pcAcList"></ul>
               </div>
             </div>
@@ -1060,18 +1068,18 @@ input[type=number] { -moz-appearance:textfield }
         Queue Name <span class="req">*</span>
         <span class="autofill-badge" id="queueBadge">Auto</span>
       </label>
-      <div class="sdw">
+      <div class="sdw" id="queueFieldWrap">
         <div class="sdb" id="queueBtn" tabindex="0">
           <span class="sd-display" id="queueDisplay"></span>
           <input class="sd-input" id="queueInput" placeholder="Select Queue..." autocomplete="off" data-lpignore="true">
           <span class="sd-arrow"></span>
         </div>
         <ul class="sdl" id="queueList">
-          <li data-v="sc3_full_scene_highway_mapless_filtered_3d_lanes">sc3_full_scene_highway_mapless_<span class="hl">filtered</span>_3d_lanes</li>
-          <li data-v="sc3_full_scene_highway_lanes_first_lidar_labeling">sc3_full_scene_highway_lanes_<span class="hl">first_lidar</span>_labeling</li>
-          <li data-v="sc3_full_scene_highway_lidar_only_labeling">sc3_full_scene_highway_<span class="hl">lidar_only</span>_labeling</li>
           <li data-v="sc3_full_scene_lane_lidar_parallel_labeling">sc3_full_scene_lane_lidar_<span class="hl">parallel</span>_labeling</li>
-          <li data-v="gs_sc3_full_scene_mapless_3d_only"><span class="hl">gs</span>_sc3_full_scene_mapless_3d_only</li>
+          <li data-v="r2s_sc3_3d_labeling"><span class="hl">r2s</span>_sc3_3d_labeling</li>
+          <li data-v="v4_sc3_full_scene_3d_lanes_parallel_labeling"><span class="hl">v4</span>_sc3_full_scene_3d_lanes_parallel_labeling</li>
+          <li data-v="mpg_sc3_full_scene_mapless_3d_lane"><span class="hl">mpg</span>_sc3_full_scene_mapless_3d_lane</li>
+          <li data-v="alpine_sc3_full_scene_3d_lanes_parallel_labeling"><span class="hl">alpine</span>_sc3_full_scene_3d_lanes_parallel_labeling</li>
         </ul>
         <input type="hidden" id="qName">
       </div>
@@ -1132,7 +1140,7 @@ input[type=number] { -moz-appearance:textfield }
           </div>
           <div class="full field">
             <label>How Many Objects? <span class="req">*</span></label>
-            <input type="number" id="objCount" placeholder="Enter number of objects" min="0" max="9999" required inputmode="numeric" oninput="if(this.value.length>4)this.value=this.value.slice(0,4)">
+            <input type="text" id="objCount" placeholder="Enter number of objects" required inputmode="numeric" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4)">
           </div>
         </div>
 
@@ -1225,6 +1233,11 @@ input[type=number] { -moz-appearance:textfield }
 <div class="toast" id="toast"></div>
 
 <script>
+  if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+
 var SUPABASE_URL  = "https://mlncwxzugxjulxxuhmsd.supabase.co";
 var SUPABASE_KEY  = "sb_publishable_RtZHLhzm4qLWYbIGIU54Eg_Schs3Nxy";
 var SUPABASE_ENDPOINT = SUPABASE_URL + "/rest/v1/meti_tasks";
@@ -1234,6 +1247,16 @@ var SUPABASE_HEADERS  = {
   "Authorization": "Bearer " + SUPABASE_KEY,
   "Prefer":        "return=minimal"
 };
+
+// ============================================================
+// GAS_WEBAPP_URL — رابط الـ Web App بتاع Apps Script (اللي فيه doGet)
+// ده بيقرا أسماء الـ QTC وقائمة الـ Queue Name لايف من شيتات:
+// "Morning QTC" / "Night QTC" / "Over Night QTC" / "Queue List"
+// ⚠️ لازم تستبدل الرابط ده برابط الـ Deployment بتاعك
+// (من الشيت: Extensions → Apps Script → Deploy → New deployment → Web app → Execute as: Me → Who has access: Anyone)
+// لازم ينتهي بـ /exec
+// ============================================================
+var GAS_WEBAPP_URL = "https://script.google.com/macros/s/AKfycb.../exec";
 
 var NK          = "meti_labeler_names";
 var NK_YK       = "meti_yk_history";
@@ -1319,68 +1342,16 @@ function renderCounter() {
 }
 setInterval(function() { getCounter(); renderCounter(); }, 60000);
 
-var QTC_DATA = {
-  "Morning": [
-    {name:"Abdelrahman Refaat (M)",role:"QT"},{name:"Hassan Mohamed (M)",role:"QT"},
-    {name:"Adel Ashraf (M)",role:"QT"},{name:"Yousef Abass (M)",role:"QT"},
-    {name:"Ahmed Taha (M)",role:"QT"},{name:"Bassant Sherif (M)",role:"QT"},
-    {name:"Amr Salah (M)",role:""},{name:"Mazen Ehab (M)",role:""},
-    {name:"Hagar Fawzy (M)",role:""},{name:"Roqia Wael (M)",role:""},
-    {name:"Eman Gamal (M)",role:""},{name:"Kirollos Ibrahem (M)",role:""},
-    {name:"Rawan Elmahdy (M)",role:""},{name:"Shimaa Nasser (M)",role:""},
-    {name:"Aya Mamdouh (M)",role:""},{name:"Sara Atef (M)",role:""},
-    {name:"Nada Wagih (M)",role:""},{name:"Nadien Mohey (M)",role:""},
-    {name:"Aya Yousry (M)",role:""},{name:"Rahma Sayed (M)",role:""},
-    {name:"Hossam Hassan (M)",role:""},{name:"Mira Samir (M)",role:""},
-    {name:"Asmaa Mohamed (M)",role:""},{name:"Nesma Mustafa (M)",role:""},
-    {name:"Hagar Atef (M)",role:""},{name:"Ahmed Adel (M)",role:""},
-    {name:"Asmaa Medhat (M)",role:""},{name:"Moataz Ahmed (M)",role:""},
-    {name:"Wafaa Fathy (M)",role:""},{name:"Omnia Mohamed (M)",role:""},
-    {name:"Eslam Ali (M)",role:""},{name:"Asmaa Khaled (M)",role:""},
-    {name:"Donia El Said (M)",role:""},{name:"Mayada Adel (M)",role:""},
-    {name:"Reem Samir (M)",role:""},{name:"Ashiry (M)",role:""},
-    {name:"Abdelmonsef (M)",role:"SV"},{name:"Yasmeen Nasser (M)",role:"SV"},
-    {name:"Mohamed Khaled (M)",role:"SV"},{name:"Mohamed Abdel Azim (M)",role:"SV"}
-  ],
-  "Night": [
-    {name:"Hazem Nader (N)",role:"QT"},{name:"Mohamed Sayed (N)",role:"QT"},
-    {name:"Abdelrahman Adel (N)",role:"QT"},{name:"Mohamed Kamal (N)",role:"QT"},
-    {name:"Mahmoud Khaled (N)",role:""},{name:"Ibrahim Mohamed Ibrahim (N)",role:""},
-    {name:"Kerolos Emil Shawky (N)",role:""},{name:"Hussein Ali (N)",role:""},
-    {name:"Ahmed Nagy (N)",role:""},{name:"Ali Suliman (N)",role:""},
-    {name:"Mostafa Helal (N)",role:""},{name:"Osama Ashraf (N)",role:""},
-    {name:"Marwan Mohamed (N)",role:""},{name:"Tony Emad (N)",role:""},
-    {name:"Hesham Hassan (N)",role:""},{name:"Mahmoud Adel (N)",role:""},
-    {name:"Abdelrahman Omar (N)",role:""},{name:"Abdelrahman Tarek Abdo (N)",role:""},
-    {name:"Yousef Mohamed Abdelfatah (N)",role:""},{name:"Mark Ashraf (N)",role:""},
-    {name:"Ahmed Ashraf (N)",role:""},{name:"Awad Wagdy (N)",role:""},
-    {name:"Yousef Ramdan (N)",role:""},
-    {name:"Abdelrahman Ahmed (N)",role:""},
-    {name:"Mohamed Salem (N)",role:"SSV"},{name:"Yousef Ahmed Eliwa (N)",role:"SV"},
-    {name:"Amr Essam (N)",role:"SV"},{name:"Shehab Ayman (N)",role:"SV"},{name:"Eslam Salah (N)",role:"SV"}
-  ],
-  "Over Night": [
-    {name:"Omar Sharawy (ON)",role:"QT"},{name:"Mohamed Fahmy (ON)",role:"QT"},
-    {name:"Hesham Nasser (ON)",role:"QT"},{name:"Ahmed Selim (ON)",role:"QT"},
-    {name:"Islam Yasser (ON)",role:"QT"},{name:"El Noby (ON)",role:""},
-    {name:"Ahmed Nagia (ON)",role:""},{name:"Abdalla Barbary (ON)",role:""},
-    {name:"Mohamed Zakaria (ON)",role:""},{name:"Samer Neseim (ON)",role:""},
-    {name:"Mohamed Ibrahim (ON)",role:""},{name:"Eyad Mohamed (ON)",role:""},
-    {name:"Seif Waled (ON)",role:""},{name:"Bahi Hussien (ON)",role:""},
-    {name:"Mohamed Nasr (ON)",role:""},{name:"Shreif Hossam (ON)",role:""},
-    {name:"Mohamed Emam (ON)",role:""},{name:"Mahmoud Khaled Hussien (ON)",role:""},
-    {name:"Karim Gaber (ON)",role:""},{name:"Yousef Fathy (ON)",role:""},
-    {name:"Yousef Mohamed Saad (ON)",role:""},{name:"Ahmed Samir Mohamed (ON)",role:""},
-    {name:"Mostafa Mahmoud Mohamed (ON)",role:""},{name:"Mahmoud Ahmed Salama (ON)",role:""},
-    {name:"Medhat Mohamed Fathy (ON)",role:""},
-    {name:"Mohamed Fathy (ON)",role:""},{name:"Amr khaled sobhy (ON)",role:""},
-    {name:"Ahmed Sobhy (ON)",role:""},{name:"Hossam Taha (ON)",role:""},
-    {name:"Shehab Alaa (ON)",role:""},{name:"Yousef Saber (ON)",role:""},
-    {name:"Eslam Khaled (ON)",role:"SV"},{name:"Mahmoud Mohamed Mousa (ON)",role:"SV"},{name:"ATITO (ON)",role:"SV"}
-  ]
-};
+// ============================================================
+// QTC_DATA — دلوقتي بتتقرا لايف من شيتات "Morning QTC" / "Night QTC" /
+// "Over Night QTC" عن طريق GAS_WEBAPP_URL (شوف loadQTCData تحت).
+// الأوبجكت هنا بيفضل فاضي لحد ما البيانات توصل من الشيت؛ لو الفورم
+// فتح والنت بطيء أو الرابط لسه متظبطش، هيفضل فاضي وهيبان تحذير بسيط.
+// ============================================================
+var QTC_DATA = {};
 
 var selectedQTC = null, linkTaskId = "", linkPassVal = "";
+var autoFilledQueue = false, autoFilledModality = false;
 
 function toast(msg, type) {
   var t = document.getElementById("toast");
@@ -1499,7 +1470,7 @@ document.querySelectorAll("input,select,textarea").forEach(function(el){
 
 document.getElementById("labName").addEventListener("input",function(){
   var pos=this.selectionStart;
-  this.value=this.value.replace(/\b([a-zA-Z])/g,function(c){return c.toUpperCase();});
+  this.value=this.value.split(' ').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}).join(' ');
   this.setSelectionRange(pos,pos);
   var v=this.value, hasNonEng=v.length>0&&/[^a-zA-Z\s]/.test(v);
   this.style.borderColor=hasNonEng?"var(--error)":(v.trim()?"#1a8a5a":"");
@@ -1543,6 +1514,8 @@ function validatePC(v){
   if(!v){pcIn.style.borderColor="";return;}
   if(/^qtc$/i.test(v)){pcIn.value="QTC";pcIn.style.borderColor="#1a8a5a";return;}
   if(/^sv$/i.test(v)){pcIn.value="SV";pcIn.style.borderColor="#1a8a5a";return;}
+  if(/^sl$/i.test(v)){pcIn.value="SL";pcIn.style.borderColor="#1a8a5a";return;}
+  if(/^buffer$/i.test(v)){pcIn.value="Buffer";pcIn.style.borderColor="#1a8a5a";return;}
   if(/^\d+$/.test(v)){var num=parseInt(v,10);pcIn.style.borderColor=(num>=1&&num<=100)?"#1a8a5a":"var(--error)";}
   else{pcIn.style.borderColor="var(--error)";}
 }
@@ -1670,13 +1643,20 @@ ykIn.addEventListener("keydown",function(e){
   else if(e.key==="Escape"){ykAcL.classList.remove("open");ykActive=-1;}
 });
 
+var qtcDataLoaded = false;
 function buildQTCGrid(shift){
   var grid=document.getElementById("qtcGrid"),disp=document.getElementById("qtcSelectedDisplay"),
       wrap=document.getElementById("qtcPickerWrap"),msg=document.getElementById("qtcShiftMsg"),
       hid=document.getElementById("qtcName");
   selectedQTC=null;hid.value="";disp.innerHTML="";grid.innerHTML="";
   var list=QTC_DATA[shift];
-  if(!list){wrap.style.display="none";msg.style.display="block";return;}
+  if(!list){
+    wrap.style.display="none";msg.style.display="block";
+    msg.innerHTML = qtcDataLoaded
+      ? "&#9432; Please select a QTC Shift first to view available names."
+      : "&#9432; بيتم تحميل الأسماء... Loading names...";
+    return;
+  }
   msg.style.display="none";wrap.style.display="block";
   list.forEach(function(p){
     var card=document.createElement("div");card.className="qtc-card";
@@ -1701,6 +1681,82 @@ document.getElementById("qtcSearch").addEventListener("input",function(){
     card.style.display=(q===""||name.indexOf(q)>-1)?"":"none";
   });
 });
+
+// ══════════════════════════════════════════════════════════════
+// LIVE DATA — القراءة من شيتات Morning/Night/Over Night QTC + Queue List
+// عن طريق الـ Apps Script Web App (GAS_WEBAPP_URL)
+// أي تعديل (إضافة/حذف اسم أو Queue) في الشيتات هيبان في الفورم من
+// غير ما حد يلمس الكود خالص.
+// ══════════════════════════════════════════════════════════════
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, function(c){
+    return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];
+  });
+}
+
+// بيلف الجزء اللي محتاج يتلون (highlight) جوه اسم الـ Queue بـ <span class="hl">
+function buildQueueLiHTML(name, highlight){
+  var safeName = escapeHtml(name);
+  if(!highlight) return safeName;
+  var idx = name.toLowerCase().indexOf(highlight.toLowerCase());
+  if(idx < 0) return safeName;
+  var before = escapeHtml(name.slice(0, idx));
+  var mid    = escapeHtml(name.slice(idx, idx + highlight.length));
+  var after  = escapeHtml(name.slice(idx + highlight.length));
+  return before + '<span class="hl">' + mid + '</span>' + after;
+}
+
+// بيعيد بناء حقل Queue Name بالكامل ببيانات جديدة، وبيعمل reset لكل
+// الـ event listeners بتاعته عشان ميحصلش تكرار (duplicate binding)
+function renderQueueList(items){
+  var wrap = document.getElementById("queueFieldWrap");
+  if(!wrap || !items || !items.length) return;
+
+  var prevValue = document.getElementById("qName") ? document.getElementById("qName").value : "";
+
+  var liHtml = items.map(function(it){
+    return '<li data-v="' + escapeHtml(it.name) + '">' + buildQueueLiHTML(it.name, it.highlight) + '</li>';
+  }).join("");
+
+  wrap.innerHTML =
+    '<div class="sdb" id="queueBtn" tabindex="0">' +
+      '<span class="sd-display" id="queueDisplay"></span>' +
+      '<input class="sd-input" id="queueInput" placeholder="Select Queue..." autocomplete="off" data-lpignore="true">' +
+      '<span class="sd-arrow"></span>' +
+    '</div>' +
+    '<ul class="sdl" id="queueList">' + liHtml + '</ul>' +
+    '<input type="hidden" id="qName">';
+
+  queueDD = makeSearchableDropdown({btnId:"queueBtn", inputId:"queueInput", listId:"queueList", hiddenId:"qName", displayId:"queueDisplay"});
+  if(prevValue) queueDD.setValue(prevValue);
+}
+
+function loadQueueListData(){
+  if(!GAS_WEBAPP_URL || GAS_WEBAPP_URL.indexOf("AKfycb...") > -1) return; // لسه مفيش رابط متظبط
+  fetch(GAS_WEBAPP_URL + "?action=queue")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(Array.isArray(data) && data.length) renderQueueList(data);
+    })
+    .catch(function(){ /* لو فشل، هيفضل شغال بالقائمة الافتراضية اللي جوه الـ HTML */ });
+}
+
+function loadQTCData(){
+  if(!GAS_WEBAPP_URL || GAS_WEBAPP_URL.indexOf("AKfycb...") > -1) return; // لسه مفيش رابط متظبط
+  fetch(GAS_WEBAPP_URL + "?action=qtc")
+    .then(function(r){ return r.json(); })
+    .then(function(data){
+      if(data && typeof data === "object"){
+        QTC_DATA = data;
+        var currentShift = document.getElementById("qtcShiftSel") ? document.getElementById("qtcShiftSel").value : "";
+        if(currentShift) buildQTCGrid(currentShift);
+      }
+    })
+    .catch(function(){ /* لو فشل، هيفضل QTC_DATA فاضي لحد ما الاتصال يرجع */ });
+}
+
+loadQueueListData();
+loadQTCData();
 
 // ══════════════════════════════════════════════════════════════
 // Task Link listener — with auto-fill for Queue + Modality
@@ -1733,30 +1789,35 @@ if(idMatch && url.length > idMatch[1].length){ this.value=idMatch[1]; url=idMatc
 
   // ── NEW: Auto-fill Queue Name + Modality from URL ──────────
   var queueSegM = url.match(/\/queue\/([^\/\?#&]+)/i);
-  if (queueSegM) {
+ if (queueSegM) {
     var extractedQ = queueSegM[1].toLowerCase().trim();
 
     // 1) Set Queue Name dropdown
     queueDD.setValue(extractedQ);
     showAutofillBadge("queueBadge", true);
+    autoFilledQueue = true;
 
     // 2) Get raw stage segment from URL (e.g. "SellMSL", "SellIvandar")
     var doSegArr = url.match(/\/do\/([^\/]+)\//i);
     var stageSegRaw = doSegArr ? doSegArr[1] : "";
-stageSegRaw = stageSegRaw.replace(/(?:QA|FP)$/i, "");
+    stageSegRaw = stageSegRaw.replace(/(?:QA|FP)$/i, "");
     // 3) Detect + set Modality
     var autoMod = detectModalityFromStageQueue(stageSegRaw, extractedQ);
     if (autoMod) {
       modalityDD.setValue(autoMod);
       showAutofillBadge("modalityBadge", true);
+      autoFilledModality = true;
     } else {
       // Queue found but no modality rule → reset modality so user picks manually
       modalityDD.reset();
       showAutofillBadge("modalityBadge", false);
+      autoFilledModality = false;
     }
   } else {
-    // No /queue/ in URL → hide badges (don't reset if user already picked manually)
+    // No /queue/ in URL → clear if they were auto-filled
+    if (autoFilledQueue) { queueDD.reset(); autoFilledQueue = false; }
     showAutofillBadge("queueBadge", false);
+    if (autoFilledModality) { modalityDD.reset(); autoFilledModality = false; }
     showAutofillBadge("modalityBadge", false);
   }
   // ── END auto-fill ───────────────────────────────────────────
@@ -1912,8 +1973,10 @@ document.getElementById("F").addEventListener("submit",function(e){
   if(!pcVal){me("pcNo");err=true;}
   else if(/^qtc$/i.test(pcVal)){document.getElementById("pcNo").value="QTC";ce("pcNo");}
   else if(/^sv$/i.test(pcVal)){document.getElementById("pcNo").value="SV";ce("pcNo");}
+  else if(/^sl$/i.test(pcVal)){document.getElementById("pcNo").value="SL";ce("pcNo");}
+else if(/^buffer$/i.test(pcVal)){document.getElementById("pcNo").value="Buffer";ce("pcNo");}
   else if(/^\d+$/.test(pcVal)){var pcNum=parseInt(pcVal,10);if(pcNum<1||pcNum>100){me("pcNo");err=true;toast("PC No. must be between 1 and 100","err");return;}else{ce("pcNo");}}
-  else{me("pcNo");err=true;toast("PC No.: Enter a number (1-100), QTC or SV","err");return;}
+  else{me("pcNo");err=true;toast("PC No.: Enter a number (1-100), QTC, SL or SV","err");return;}
   if(!lab){me("labName");err=true;}
   else if(!/^[a-zA-Z\s]+$/.test(lab)){me("labName");err=true;toast("Labeler Name: English letters only","err");return;}
   else{ce("labName");}
