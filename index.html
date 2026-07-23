@@ -1780,6 +1780,15 @@ function loadAllFormData(){
 
 loadAllFormData();
 
+// كل 20 ثانية، هات آخر نسخة من الشيت تلقائيًا من غير ما المستخدم يعمل Refresh
+// (لو التاب فاتح من قبل التعديل، هيتحدث لوحده)
+setInterval(loadAllFormData, 20000);
+
+// كمان لما المستخدم يرجع للتاب بعد ما يكون سايبها (تبديل تاب/نافذة)، حدّث فورًا
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState === "visible") loadAllFormData();
+});
+
 // ══════════════════════════════════════════════════════════════
 // Task Link listener — with auto-fill for Queue + Modality
 // ══════════════════════════════════════════════════════════════
